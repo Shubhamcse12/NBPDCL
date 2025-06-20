@@ -1,0 +1,52 @@
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 30px;
+  background-color: #f9f9f9;
+  flex-wrap: wrap;
+}
+
+.left-logo {
+  display: flex;
+  align-items: center;
+}
+
+.left-logo img {
+  width: 40px;
+  margin-right: 10px;
+}
+
+.header-title {
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.right-logo img {
+  width: 35px;
+}
+
+/* Divider below header */
+.header-divider {
+  height: 3px;
+  background-color: #b99df5;
+  width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .main-header {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .left-logo {
+    justify-content: center;
+  }
+
+  .right-logo {
+    justify-content: center;
+  }
+}
