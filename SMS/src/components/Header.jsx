@@ -11,7 +11,7 @@ function Header() {
       <div className="header-row">
         <div className="header-left">
           <img
-            src="https://img.icons8.com/ios-filled/50/000000/book.png"
+            src="SMS_logo.jpg"
             alt="LNJPIT Logo"
             className="logo"
           />
