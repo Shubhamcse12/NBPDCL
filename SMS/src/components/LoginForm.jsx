@@ -1,29 +1,63 @@
 // src/components/LoginForm.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './LoginForm.css';
+import axios from 'axios';
 
 function LoginForm() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    captchaInput: '',
+    captchaServer: '',
+  });
+
+  const generateCaptcha = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  };
+
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, captchaServer: generateCaptcha() }));
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post('http://localhost:5000/api/users/login', formData);
+      alert(res.data.message);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Login failed');
+    }
+  };
+
   return (
     <div className="login-section">
       <h2>USER LOGIN FORM</h2>
       <div className="login-box">
         <div className="box-header">LOGIN FORM</div>
-        <form>
+        <form onSubmit={handleSubmit}>
           <label htmlFor="email">Enter Email id</label>
-          <input type="email" id="email" placeholder="Email" required />
+          <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required />
 
           <label htmlFor="password">Password</label>
-          <input type="password" id="password" placeholder="Password" required />
+          <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" required />
 
           <div className="forgot-link">
             <a href="#">Forgot Password</a>
           </div>
 
-          <label >Verification code :</label>
+          <label>Verification code :</label>
           <div className="captcha-row">
-            
-            <input type="text" id="code" />
-            <img src="https://via.placeholder.com/50x30?text=CAP" alt="captcha" />
+            <input type="text" name="captchaInput" value={formData.captchaInput} onChange={handleChange} placeholder="Enter code" required />
+            <div className="captcha-image">{formData.captchaServer}</div>
           </div>
 
           <div className="form-buttons">
