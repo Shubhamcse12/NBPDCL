@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import './LoginForm.css';
 import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 
-function LoginForm() {
+function LoginForm({setUserType}) {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -33,6 +35,8 @@ function LoginForm() {
     try {
       const res = await axios.post('http://localhost:5000/api/users/login', formData);
       alert(res.data.message);
+      setUserType('user');
+      navigate('/user-dashboard');
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
     }
@@ -51,7 +55,7 @@ function LoginForm() {
           <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" required />
 
           <div className="forgot-link">
-            <a href="#">Forgot Password</a>
+          <Link to="/user-forgot">Forgot Password</Link>
           </div>
 
           <label>Verification code :</label>
@@ -63,7 +67,7 @@ function LoginForm() {
           <div className="form-buttons">
             <button type="submit">LOGIN</button>
             <span>|</span>
-            <a href="#">Not Register Yet</a>
+            <Link to="/user-signup">Not Register Yet</Link>
           </div>
         </form>
       </div>

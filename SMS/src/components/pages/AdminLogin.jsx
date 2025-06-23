@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './AdminLogin.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-function AdminLogin() {
+function AdminLogin({ setUserType }) {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -31,10 +34,22 @@ function AdminLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (formData.captchaInput !== formData.captchaServer) {
+      alert('Invalid CAPTCHA');
+      return;
+    }
+
     try {
-      const res = await axios.post('http://localhost:5000/api/admin/adminLogin', formData);
+      const res = await axios.post('http://localhost:5000/api/admin/adminLogin', {
+        username: formData.username,
+        password: formData.password
+      });
+
       alert(res.data.message);
-      // admin dashboard
+
+      // ✅ Set user type and redirect
+      setUserType('admin');
+      navigate('/admin-dashboard');
     } catch (err) {
       alert(err.response?.data?.message || 'Admin login failed');
     }

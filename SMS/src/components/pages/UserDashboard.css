@@ -1,0 +1,35 @@
+
+.admin-dashboard {
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.admin-dashboard h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+  padding: 20px 10px;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: scale(1.02);
+}
+
+.icon {
+  margin-bottom: 10px;
+}

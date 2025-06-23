@@ -5,6 +5,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-bottom: 140px;
+
 }
 
 .admin-login-section h2 {
