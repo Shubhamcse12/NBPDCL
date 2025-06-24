@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardCard from "../DashboardCard";
-import { getInventoryCount } from "../DashboardPages/Inventory";
+import { getInventoryCount, getLowStockCount  } from "../DashboardPages/Inventory";
 import "./Dashboard.css";
 
 const Dashboard = ({ userType }) => {
   const navigate = useNavigate();
   const [totalProducts, setTotalProducts] = useState(0);
+  const [lowStockCount, setLowStockCount] = useState(0);
 
   useEffect(() => {
     const fetchCount = async () => {
       const count = await getInventoryCount();
+      const lowStock = await getLowStockCount();
       setTotalProducts(count);
+      setLowStockCount(lowStock);
     };
     fetchCount();
   }, []);
@@ -25,11 +28,12 @@ const Dashboard = ({ userType }) => {
         <DashboardCard
           title="Total Products"
           description={`${totalProducts} items in stock`}
+          icon="📦" 
           onClick={() => navigate("/inventory")}
         />
         <DashboardCard
           title="Low Stock Alerts"
-          description="23 items need restocking"
+          description={`${lowStockCount} items below 25`}
           icon="⚠️"
           onClick={() => navigate("/low-stock")}
         />

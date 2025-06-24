@@ -154,3 +154,14 @@ export const getInventoryCount = async () => {
   }
 };
 
+export const getLowStockCount = async () => {
+  try {
+    const res = await axios.get("http://localhost:5000/api/stocks");
+    return res.data.filter(item => item.quantity < 25).length;
+  } catch (err) {
+    console.error("Failed to fetch low stock count:", err);
+    return 0;
+  }
+};
+
+
