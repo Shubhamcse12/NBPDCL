@@ -42,6 +42,7 @@ function Header({ userType, setUserType }) {
         <nav className={`nav-links ${menuOpen ? 'open' : 'close'}`}>
           {userType === 'guest' && (
             <>
+              <Link to="/">Home</Link>
               <Link to="/admin-login">Admin Login</Link>
               <Link to="/user-signup">User Signup</Link>
               <Link to="/user-login">User Login</Link>

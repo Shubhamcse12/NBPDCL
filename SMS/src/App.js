@@ -21,7 +21,7 @@ function App() {
         const res = await axios.get('http://localhost:5000/api/users/me', { withCredentials: true });
         setUserType(res.data.userType);
       } catch {
-        setUserType('guest'); // Session invalid or not logged in
+        setUserType('guest'); 
       }
     };
     checkSession();
