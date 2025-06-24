@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser } = require('../controllers/userController');
+const { registerUser,
+  getAllUsers,
+  updateUserStatus,
+  deleteUser, } = require('../controllers/userController');
 const { loginUser } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -15,5 +18,9 @@ router.post('/logout', (req, res) => {
 router.get('/me', protect, async (req, res) => {
   res.json({ userType: 'user' });
 });
+
+router.get('/', getAllUsers);
+router.put('/:id/status', updateUserStatus);
+router.delete('/:id', deleteUser);
 
 module.exports = router;

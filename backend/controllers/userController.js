@@ -26,6 +26,7 @@ const registerUser = async (req, res) => {
       mobile,
       email,
       passwordHash,
+      status: 'held',
     });
 
     await user.save();
@@ -37,4 +38,45 @@ const registerUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser };
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({}, 'fullName email status');
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching users', error: err.message });
+  }
+};
+
+const updateUserStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!['accepted', 'held', 'blocked'].includes(status)) {
+    return res.status(400).json({ message: 'Invalid status' });
+  }
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update status', error: err.message });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete user', error: err.message });
+  }
+};
+
+
+
+
+module.exports = { registerUser, getAllUsers, updateUserStatus, deleteUser };
