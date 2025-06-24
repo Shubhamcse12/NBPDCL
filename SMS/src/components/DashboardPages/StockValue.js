@@ -1,5 +1,6 @@
 // src/components/pages/StockValue.js
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import './StockValue.css';
 
 const StockValue = () => {
@@ -8,34 +9,24 @@ const StockValue = () => {
   const [totalValue, setTotalValue] = useState(0);
 
   useEffect(() => {
-    // Replace with actual backend call later
-    const fetchStockValue = async () => {
+    const fetchStockData = async () => {
       try {
-        // Simulate API call
-        const response = await new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve({
-                data: [
-                  { id: 1, name: 'Wire Coil', category: 'Hardware', quantity: 80, price: 250 },
-                  { id: 2, name: 'Insulators', category: 'Consumables', quantity: 100, price: 40 },
-                  { id: 3, name: 'Fuse', category: 'Electronics', quantity: 200, price: 35 },
-                ],
-              }),
-            1000
-          )
-        );
-        const data = response.data;
-        setStockData(data);
-        setTotalValue(data.reduce((sum, item) => sum + item.quantity * item.price, 0));
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching stock data:', error);
+        const res = await axios.get("http://localhost:5000/api/stocks");
+        setStockData(res.data);
+
+        const total = res.data.reduce((sum, item) => {
+          return sum + item.quantity * item.unitPrice;
+        }, 0);
+
+        setTotalValue(total);
+      } catch (err) {
+        console.error("Failed to fetch stock data:", err);
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchStockValue();
+    fetchStockData();
   }, []);
 
   return (
@@ -53,23 +44,25 @@ const StockValue = () => {
           <table className="stock-value-table">
             <thead>
               <tr>
-                <th>ID</th>
+                <th>S.No.</th>
+                <th>Item Id</th>
                 <th>Item</th>
                 <th>Category</th>
                 <th>Quantity</th>
-                <th>Price (₹)</th>
-                <th>Value (₹)</th>
+                <th>Unit Price (₹)</th>
+                <th>Total Value (₹)</th>
               </tr>
             </thead>
             <tbody>
-              {stockData.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
-                  <td>{item.name}</td>
+              {stockData.map((item, index) => (
+                <tr key={item._id}>
+                  <td>{index + 1}</td>
+                  <td>{item._id.slice(0, 9)}...</td>
+                  <td>{item.itemName}</td>
                   <td>{item.category}</td>
                   <td>{item.quantity}</td>
-                  <td>{item.price}</td>
-                  <td>₹{item.quantity * item.price}</td>
+                  <td>{item.unitPrice}</td>
+                  <td>₹{(item.quantity * item.unitPrice).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>

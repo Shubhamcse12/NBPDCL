@@ -1,5 +1,6 @@
 // src/components/pages/LowStock.js
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import './LowStock.css';
 
 const LowStock = () => {
@@ -7,27 +8,14 @@ const LowStock = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Replace with real API endpoint later
     const fetchLowStockItems = async () => {
       try {
-        // Simulate API call
-        const response = await new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve({
-                data: [
-                  { id: 1, name: 'Wire Coil', category: 'Hardware', stock: 8 },
-                  { id: 2, name: 'Insulators', category: 'Consumables', stock: 5 },
-                  { id: 3, name: 'Fuse', category: 'Electronics', stock: 3 },
-                ],
-              }),
-            1000
-          )
-        );
-        setLowStockItems(response.data);
-        setLoading(false);
+        const res = await axios.get('http://localhost:5000/api/stocks');
+        const lowItems = res.data.filter((item) => item.quantity < 25);
+        setLowStockItems(lowItems);
       } catch (err) {
-        console.error('Failed to fetch data', err);
+        console.error('Failed to fetch low stock items:', err);
+      } finally {
         setLoading(false);
       }
     };
@@ -45,7 +33,8 @@ const LowStock = () => {
         <table className="low-stock-table">
           <thead>
             <tr>
-              <th>ID</th>
+              <th>S.No.</th>
+              <th>Item Id</th>
               <th>Item Name</th>
               <th>Category</th>
               <th>Current Stock</th>
@@ -53,12 +42,13 @@ const LowStock = () => {
             </tr>
           </thead>
           <tbody>
-            {lowStockItems.map((item) => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                <td>{item.name}</td>
+            {lowStockItems.map((item, index) => (
+              <tr key={item._id}>
+                <td>{index + 1}</td>
+                <td>{item._id.slice(0, 9)}...</td>
+                <td>{item.itemName}</td>
                 <td>{item.category}</td>
-                <td className="low-value">{item.stock}</td>
+                <td className="low-value">{item.quantity}</td>
                 <td>
                   <button className="restock-btn">Request Restock</button>
                 </td>

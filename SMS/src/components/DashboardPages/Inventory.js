@@ -164,4 +164,18 @@ export const getLowStockCount = async () => {
   }
 };
 
+export const getTotalStockValue = async () => {
+  try {
+    const res = await axios.get("http://localhost:5000/api/stocks");
+    const totalValue = res.data.reduce((sum, item) => {
+      return sum + item.quantity * item.unitPrice;
+    }, 0);
+    return totalValue;
+  } catch (err) {
+    console.error("Failed to fetch stock value:", err);
+    return 0;
+  }
+};
+
+
 

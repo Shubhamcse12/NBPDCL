@@ -1,20 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardCard from "../DashboardCard";
-import { getInventoryCount, getLowStockCount  } from "../DashboardPages/Inventory";
+import {
+  getInventoryCount,
+  getLowStockCount,
+  getTotalStockValue,
+} from "../DashboardPages/Inventory";
 import "./Dashboard.css";
+
+const formatCurrency = (value) => {
+  if (!value && value !== 0) return "₹0";
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(value);
+};
+
 
 const Dashboard = ({ userType }) => {
   const navigate = useNavigate();
   const [totalProducts, setTotalProducts] = useState(0);
   const [lowStockCount, setLowStockCount] = useState(0);
+  const [stockValue, setStockValue] = useState(0);
 
   useEffect(() => {
     const fetchCount = async () => {
       const count = await getInventoryCount();
       const lowStock = await getLowStockCount();
+      const totalValue = await getTotalStockValue();
       setTotalProducts(count);
       setLowStockCount(lowStock);
+      setStockValue(totalValue);
     };
     fetchCount();
   }, []);
@@ -28,7 +45,7 @@ const Dashboard = ({ userType }) => {
         <DashboardCard
           title="Total Products"
           description={`${totalProducts} items in stock`}
-          icon="📦" 
+          icon="📦"
           onClick={() => navigate("/inventory")}
         />
         <DashboardCard
@@ -39,10 +56,11 @@ const Dashboard = ({ userType }) => {
         />
         <DashboardCard
           title="Stock Value"
-          description="₹12.3 Lakhs"
+          description={formatCurrency(stockValue)}
           icon="💰"
           onClick={() => navigate("/stock-value")}
         />
+
         <DashboardCard
           title="New Complaints"
           description="5 unresolved"
