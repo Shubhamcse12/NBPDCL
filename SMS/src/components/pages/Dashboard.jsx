@@ -66,7 +66,7 @@ const Dashboard = ({ userType }) => {
       </div>
 
       {/* Quick Actions */}
-      {(userType === 'admin' || userType === 'user') && (
+      {(userType === 'admin') && (
         <div className="dashboard-grid">
           <DashboardCard title="Add New Stock" description="➕ Add stock items" icon="➕" onClick={() => navigate('/stock/add')} />
           <DashboardCard title="Issue Item" description="📤 Mark stock as issued" icon="📤" onClick={() => navigate('/issue-stock')} />

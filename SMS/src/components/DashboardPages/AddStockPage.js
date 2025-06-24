@@ -69,10 +69,10 @@ const AddStockPage = () => {
     fetchProducts();
   }, []);
 
-  // Get unique categories for dropdown
+
   const categories = [...new Set(products.map((item) => item.category))];
 
-  // Filter and sort products
+
   const filteredProducts = products
     .filter((item) =>
       item.itemName.toLowerCase().includes(searchTerm.toLowerCase())
