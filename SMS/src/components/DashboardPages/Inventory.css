@@ -112,6 +112,21 @@
   background-color: #c82333;
 }
 
+.download-btn {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.download-btn:hover {
+  background-color: #218838;
+}
+
+
 /* Responsive */
 @media (max-width: 768px) {
   .inventory-toolbar {
