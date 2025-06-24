@@ -1,0 +1,71 @@
+.stock-value-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: auto;
+  background-color: #fff;
+}
+
+.stock-value-heading {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.total-value-box {
+  background-color: #ecf0f1;
+  padding: 12px 18px;
+  font-size: 18px;
+  color: #27ae60;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.loading-text {
+  text-align: center;
+  font-size: 16px;
+  color: #555;
+  margin-top: 30px;
+}
+
+.stock-value-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: #fafafa;
+}
+
+.stock-value-table th,
+.stock-value-table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.stock-value-table th {
+  background-color: #f4f4f4;
+  color: #333;
+  font-weight: 600;
+}
+
+.stock-value-table td {
+  font-size: 15px;
+}
+
+@media (max-width: 768px) {
+  .stock-value-heading {
+    font-size: 20px;
+  }
+
+  .stock-value-table {
+    font-size: 13px;
+    overflow-x: auto;
+  }
+
+  .total-value-box {
+    font-size: 16px;
+  }
+}

@@ -11,6 +11,13 @@ import AdminLogin from './components/pages/AdminLogin';
 import UserSignup from './components/pages/UserSignup';
 import Dashboard from './components/pages/Dashboard';
 
+import Inventory from './components/DashboardPages/Inventory';
+import LowStock from './components/DashboardPages/LowStock'
+import StockValue from './components/DashboardPages/StockValue';
+import StockValueComplaints from './components/DashboardPages/StockValueComplaints';
+import CategoryStockPage from "./components/DashboardPages/CategoryStockPage";
+
+
 function App() {
   const [userType, setUserType] = useState('guest'); // 'admin' | 'user' | 'guest'
 
@@ -38,6 +45,12 @@ function App() {
             <Route path="/user-login" element={<LoginForm setUserType={setUserType} />} />
             <Route path="/admin-login" element={<AdminLogin setUserType={setUserType} />} />
             <Route path="/user-signup" element={<UserSignup />} />
+            <Route path="/inventory" element={<Inventory />} />
+            <Route path="/low-stock" element={<LowStock />} />
+            <Route path="/stock-value" element={<StockValue />} />
+            <Route path="/complaints" element={<StockValueComplaints />} />
+            <Route path="/charts/category" element={<CategoryStockPage />} />
+
           </Routes>
         </div>
         <Footer />
