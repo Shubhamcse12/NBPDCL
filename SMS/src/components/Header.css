@@ -49,6 +49,25 @@
   padding: 10px 20px;
   border-top: 1px solid #eee;
   position: relative;
+  flex-wrap: wrap;
+}
+
+.logged-in-label {
+  font-size: 14px;
+  color: #444;
+  font-weight: 500;
+}
+
+.nav-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end; 
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
 }
 
 .hamburger {
@@ -94,6 +113,32 @@
     padding: 0px 11px 4px;
   }
 
+    .logged-in-label {
+    margin: 10px 0;
+    padding-right: 0;
+    width: 100%;
+    text-align: left;
+  }
+  .header-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .logged-in-label {
+    margin: 10px 0;
+    padding-right: 0;
+    width: 100%;
+    text-align: left;
+  }
+
+  .nav-wrapper {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .nav-links {
+    align-items: flex-start;
+  }
   .nav-links {
     display: none;
     flex-direction: column;

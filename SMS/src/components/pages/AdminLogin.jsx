@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import './AdminLogin.css';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import "./AdminLogin.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function AdminLogin({ setUserType }) {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    captchaInput: '',
-    captchaServer: '',
+    username: "",
+    password: "",
+    captchaInput: "",
+    captchaServer: "",
   });
 
   const generateCaptcha = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let code = '';
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "";
     for (let i = 0; i < 6; i++) {
       code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
@@ -35,23 +35,28 @@ function AdminLogin({ setUserType }) {
     e.preventDefault();
 
     if (formData.captchaInput !== formData.captchaServer) {
-      alert('Invalid CAPTCHA');
+      alert("Invalid CAPTCHA");
       return;
     }
 
     try {
-      const res = await axios.post('http://localhost:5000/api/admin/adminLogin', {
-        username: formData.username,
-        password: formData.password
-      });
+      const res = await axios.post(
+        "http://localhost:5000/api/admin/adminLogin",
+        {
+          username: formData.username,
+          password: formData.password,
+        }
+      );
 
       alert(res.data.message);
-
-      // ✅ Set user type and redirect
       setUserType('admin');
-      navigate('/admin-dashboard');
+      
+      setTimeout(() => {
+        navigate("/");
+      }, 100);
+
     } catch (err) {
-      alert(err.response?.data?.message || 'Admin login failed');
+      alert(err.response?.data?.message || "Admin login failed");
     }
   };
 
@@ -94,7 +99,9 @@ function AdminLogin({ setUserType }) {
             <div className="captcha-image">{formData.captchaServer}</div>
           </div>
 
-          <button type="submit" className="login-btn">LOGIN</button>
+          <button type="submit" className="login-btn">
+            LOGIN
+          </button>
         </form>
       </div>
     </section>

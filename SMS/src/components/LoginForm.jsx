@@ -34,11 +34,15 @@ function LoginForm({ setUserType }) {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:5000/api/users/login', formData, {
-        withCredentials: true, // 🚨 VERY IMPORTANT FOR COOKIES
+        withCredentials: true, 
       });
       alert(res.data.message);
-      setUserType('user');
-      navigate('/user-dashboard');
+      setUserType(res.data.userType);
+
+      setTimeout(() => {
+      navigate('/');
+      }, 1);
+
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
     }
