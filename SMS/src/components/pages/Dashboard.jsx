@@ -43,7 +43,7 @@ const Dashboard = ({ userType }) => {
 
         {userType === 'admin' && (
           <>
-            <DashboardCard title="Manage Users" description="Create, update, or delete users" icon="🛠️" onClick={() => navigate('/admin-users')} />
+            <DashboardCard title="Manage Users" description="Create, update, or delete users" icon="🛠️" onClick={() => navigate('/admin/users')} />
             <DashboardCard title="Recent Stock Activity" description="Latest logs of issued/received items" icon="🕒" onClick={() => navigate('/admin-activity')} />
           </>
         )}
@@ -68,7 +68,7 @@ const Dashboard = ({ userType }) => {
       {/* Quick Actions */}
       {(userType === 'admin' || userType === 'user') && (
         <div className="dashboard-grid">
-          <DashboardCard title="Add New Stock" description="➕ Add stock items" icon="➕" onClick={() => navigate('/add-stock')} />
+          <DashboardCard title="Add New Stock" description="➕ Add stock items" icon="➕" onClick={() => navigate('/stock/add')} />
           <DashboardCard title="Issue Item" description="📤 Mark stock as issued" icon="📤" onClick={() => navigate('/issue-stock')} />
           <DashboardCard title="Receive Item" description="📥 Log received stock" icon="📥" onClick={() => navigate('/receive-stock')} />
           <DashboardCard title="View Complaints" description="📄 Check all complaints" icon="📄" onClick={() => navigate('/complaints')} />
