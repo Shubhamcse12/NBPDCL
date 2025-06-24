@@ -1,6 +1,7 @@
 // src/App.js
-import React, { useState } from 'react';
+import React, { useEffect,useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import axios from 'axios';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
@@ -14,10 +15,22 @@ import UserDashboard from './components/pages/UserDashboard';
 function App() {
   const [userType, setUserType] = useState('guest'); 
 
+    useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/users/me', { withCredentials: true });
+        setUserType(res.data.userType);
+      } catch {
+        setUserType('guest'); // Session invalid or not logged in
+      }
+    };
+    checkSession();
+  }, []);
+
   return (
     <div className="app-wrapper">
       <Router>
-        <Header userType={userType} />
+        <Header userType={userType} setUserType={setUserType} />
         <div className="content">
           <Routes>
             <Route path="/" element={<Dashboard />} />

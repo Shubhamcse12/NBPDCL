@@ -1,6 +1,8 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 
+const jwt = require('jsonwebtoken');
+
 const loginUser = async (req, res) => {
   try {
     const { email, password, captchaInput, captchaServer } = req.body;
@@ -19,10 +21,29 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    res.status(200).json({ message: 'Login successful', user: { email: user.email, fullName: user.fullName } });
+   
+    const token = jwt.sign(
+      { id: user._id, role: 'user' },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 1000 
+    });
+
+    res.status(200).json({
+      message: 'Login successful',
+      user: { email: user.email, fullName: user.fullName }
+    });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
-
 module.exports = { loginUser };
+
+

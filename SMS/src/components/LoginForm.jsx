@@ -4,7 +4,7 @@ import './LoginForm.css';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 
-function LoginForm({setUserType}) {
+function LoginForm({ setUserType }) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -33,7 +33,9 @@ function LoginForm({setUserType}) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/users/login', formData);
+      const res = await axios.post('http://localhost:5000/api/users/login', formData, {
+        withCredentials: true, // 🚨 VERY IMPORTANT FOR COOKIES
+      });
       alert(res.data.message);
       setUserType('user');
       navigate('/user-dashboard');
@@ -49,18 +51,18 @@ function LoginForm({setUserType}) {
         <div className="box-header">LOGIN FORM</div>
         <form onSubmit={handleSubmit}>
           <label htmlFor="email">Enter Email id</label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" required />
+          <input type="email" name="email" value={formData.email} onChange={handleChange} required />
 
           <label htmlFor="password">Password</label>
-          <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" required />
+          <input type="password" name="password" value={formData.password} onChange={handleChange} required />
 
           <div className="forgot-link">
-          <Link to="/user-forgot">Forgot Password</Link>
+            <Link to="/user-forgot">Forgot Password</Link>
           </div>
 
-          <label>Verification code :</label>
+          <label>Verification code:</label>
           <div className="captcha-row">
-            <input type="text" name="captchaInput" value={formData.captchaInput} onChange={handleChange} placeholder="Enter code" required />
+            <input type="text" name="captchaInput" value={formData.captchaInput} onChange={handleChange} required />
             <div className="captcha-image">{formData.captchaServer}</div>
           </div>
 
