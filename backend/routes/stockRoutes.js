@@ -5,5 +5,6 @@ const stockController = require("../controllers/stockController");
 
 router.post("/add", stockController.addStock);
 router.get("/", stockController.getAllStocks);
+router.get("/by-category", stockController.getStockByCategory);
 
 module.exports = router;

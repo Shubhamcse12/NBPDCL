@@ -20,7 +20,34 @@ const getAllStocks = async (req, res) => {
   }
 };
 
+const getStockByCategory = async (req, res) => {
+  try {
+    const stockData = await StockItem.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          total: { $sum: "$quantity" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          category: "$_id",
+          total: 1
+        }
+      }
+    ]);
+
+    res.status(200).json(stockData);
+  } catch (err) {
+    console.error("Error in getStockByCategory:", err);
+    res.status(500).json({ error: "Failed to fetch stock by category" });
+  }
+};
+
+
 module.exports = {
   addStock,
   getAllStocks,
+  getStockByCategory,
 };

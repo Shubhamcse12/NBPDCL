@@ -15,7 +15,7 @@ import Inventory from './components/DashboardPages/Inventory';
 import LowStock from './components/DashboardPages/LowStock'
 import StockValue from './components/DashboardPages/StockValue';
 import StockValueComplaints from './components/DashboardPages/StockValueComplaints';
-import CategoryStockPage from "./components/DashboardPages/CategoryStockPage";
+import StockByCategory from "./components/DashboardPages/StockByCategory";
 import AddStockPage from './components/DashboardPages/AddStockPage';
 import ManageUsersPage from './components/DashboardPages/ManageUsersPage';
 
@@ -50,7 +50,7 @@ function App() {
             <Route path="/low-stock" element={<LowStock />} />
             <Route path="/stock-value" element={<StockValue />} />
             <Route path="/complaints" element={<StockValueComplaints />} />
-            <Route path="/charts/category" element={<CategoryStockPage />} />
+            <Route path="/charts/category" element={<StockByCategory />} />
             <Route path="/stock/add" element={<AddStockPage />} />
             <Route path="/admin/users" element={<ManageUsersPage />} />
 

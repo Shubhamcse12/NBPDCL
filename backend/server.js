@@ -13,10 +13,9 @@ connectDB();
 
 const app = express();
 
-// ✅ FIXED CORS CONFIG
 app.use(cors({
-  origin: 'http://localhost:3000', // ✅ Your React app URL
-  credentials: true               // ✅ Needed for cookies
+  origin: 'http://localhost:3000', 
+  credentials: true               
 }));
 
 app.use(express.json());
