@@ -77,7 +77,9 @@ function Header({ userType, setUserType }) {
               <Link to="/" onClick={() => setMenuOpen(false)}>Dashboard</Link>
               <Link to="/user-stock" onClick={() => setMenuOpen(false)}>Inventory</Link>
               <Link to="/user-orders"  onClick={() => setMenuOpen(false)}>Orders</Link>
+              <Link to="/file-complaint" onClick={() => setMenuOpen(false)}>File Complaint</Link>
               <Link to="/user-logout" className="logout" onClick={handleLogout}>Logout</Link>
+              
             </>
           )}
         </nav>

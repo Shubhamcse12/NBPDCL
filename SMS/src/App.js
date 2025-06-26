@@ -48,7 +48,7 @@ function App() {
             <Route path="/user-signup" element={<UserSignup />} />
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/low-stock" element={<LowStock />} />
-            <Route path="//file-complaint" element={<Complaint />} />
+            <Route path="/file-complaint" element={<Complaint userType={userType}/>} />
             <Route path="/stock-value" element={<StockValue />} />
             <Route path="/complaints" element={<StockValueComplaints />} />
             <Route path="/charts/category" element={<CategoryStockPage />} />

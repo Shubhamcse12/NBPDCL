@@ -1,8 +1,8 @@
-// src/components/pages/StockValueComplaints.js
 import React, { useEffect, useState } from 'react';
 import './StockValueComplaints.css';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import axios from 'axios';
 
 const StockValueComplaints = () => {
   const [complaints, setComplaints] = useState([]);
@@ -11,60 +11,32 @@ const StockValueComplaints = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeComplaint, setActiveComplaint] = useState(null);
+  const [resolutionMessage, setResolutionMessage] = useState('');
+  const [proofFile, setProofFile] = useState(null);
 
+  // Fetch complaints on mount
   useEffect(() => {
     const fetchComplaints = async () => {
       try {
-        const fakeData = [
-          {
-            id: 'CMP101',
-            item: 'Copper Wire',
-            reason: 'Incorrect stock valuation',
-            reportedBy: 'Store Incharge',
-            status: 'Pending',
-            date: '2025-06-22',
-          },
-          {
-            id: 'CMP102',
-            item: 'Fuse Box',
-            reason: 'Double entry found',
-            reportedBy: 'Admin',
-            status: 'Resolved',
-            date: '2025-06-20',
-          },
-          {
-            id: 'CMP101',
-            item: 'Copper Wire',
-            reason: 'Incorrect stock valuation',
-            reportedBy: 'Store Incharge',
-            status: 'Pending',
-            date: '2025-06-22',
-          },
-          {
-            id: 'CMP102',
-            item: 'Fuse Box',
-            reason: 'Double entry found',
-            reportedBy: 'Admin',
-            status: 'Resolved',
-            date: '2025-06-20',
-          },
-        ];
-        await new Promise((res) => setTimeout(res, 800));
-        setComplaints(fakeData);
+        const res = await axios.get('http://localhost:5000/api/complaints/all', {
+          withCredentials: true,
+        });
+        setComplaints(res.data);
         setLoading(false);
       } catch (err) {
         console.error('Failed to load complaints', err);
         setLoading(false);
       }
     };
-
     fetchComplaints();
   }, []);
 
+  // Filter complaints
   const filteredComplaints = complaints
     .filter((c) =>
       c.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.reason.toLowerCase().includes(searchTerm.toLowerCase())
+      c.subject.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .filter((c) => (selectedStatus ? c.status === selectedStatus : true));
 
@@ -73,22 +45,57 @@ const StockValueComplaints = () => {
   const currentRecords = filteredComplaints.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(filteredComplaints.length / recordsPerPage);
 
+  // Download as PDF
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     doc.text('Stock Value Complaints', 14, 15);
     autoTable(doc, {
-      head: [['Complaint ID', 'Item', 'Reason', 'Reported By', 'Status', 'Date']],
+      head: [['ID', 'Item', 'User Type', 'Reported By', 'Status', 'Date']],
       body: filteredComplaints.map((c) => [
-        c.id,
+        c.complaintId,
         c.item,
-        c.reason,
-        c.reportedBy,
+        c.userType,
+        c.name || c.reportedBy,
         c.status,
-        c.date,
+        new Date(c.createdAt).toLocaleDateString(),
       ]),
       startY: 20,
     });
     doc.save('stock-value-complaints.pdf');
+  };
+
+  // Resolve Complaint
+  const handleResolve = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('resolutionMessage', resolutionMessage);
+      if (proofFile) formData.append('proof', proofFile);
+
+      await axios.put(
+        `http://localhost:5000/api/complaints/${activeComplaint.complaintId}/resolve`,
+        formData,
+        { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+
+      const updated = complaints.map((comp) =>
+        comp.complaintId === activeComplaint.complaintId
+          ? {
+              ...comp,
+              status: 'Resolved',
+              resolution: resolutionMessage,
+              proof: proofFile?.name || 'No file',
+            }
+          : comp
+      );
+
+      setComplaints(updated);
+      setActiveComplaint(null);
+      setResolutionMessage('');
+      setProofFile(null);
+    } catch (err) {
+      console.error('Error resolving complaint', err);
+      alert('Failed to resolve complaint');
+    }
   };
 
   return (
@@ -150,23 +157,31 @@ const StockValueComplaints = () => {
             <tr>
               <th>Complaint ID</th>
               <th>Item</th>
-              <th>Reason</th>
+              <th>Subject</th>
+              <th>Description</th>
               <th>Reported By</th>
               <th>Status</th>
               <th>Date</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {currentRecords.map((c) => (
-              <tr key={c.id}>
-                <td>{c.id}</td>
+            {currentRecords.map((c, index) => (
+              <tr key={`${c.complaintId}-${index}`}>
+                <td>{c.complaintId}</td>
                 <td>{c.item}</td>
-                <td>{c.reason}</td>
-                <td>{c.reportedBy}</td>
+                <td>{c.subject}</td>
+                <td>{c.description}</td>
+                <td>{c.name || c.reportedBy}</td>
                 <td>
                   <span className={`status ${c.status.toLowerCase()}`}>{c.status}</span>
                 </td>
-                <td>{c.date}</td>
+                <td>{new Date(c.createdAt).toLocaleDateString()}</td>
+                <td>
+                  {c.status === 'Pending' && (
+                    <button onClick={() => setActiveComplaint(c)}>🛠 Resolve</button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -190,6 +205,49 @@ const StockValueComplaints = () => {
           >
             Next ➡️
           </button>
+        </div>
+      )}
+
+      {activeComplaint && (
+        <div className="reply-modal">
+          <div className="reply-box">
+            <h3>Resolve Complaint: {activeComplaint.complaintId}</h3>
+            <p><strong>User Type:</strong> {activeComplaint.userType}</p>
+            <p><strong>Name:</strong> {activeComplaint.name || activeComplaint.reportedBy}</p>
+            <p><strong>Email:</strong> {activeComplaint.email || activeComplaint.centerEmail}</p>
+            <p><strong>Item:</strong> {activeComplaint.item}</p>
+            <p><strong>Complaint Type:</strong> {activeComplaint.type}</p>
+            <p><strong>Subject:</strong> {activeComplaint.subject}</p>
+            <p><strong>Description:</strong> {activeComplaint.description}</p>
+            <p><strong>Date:</strong> {new Date(activeComplaint.createdAt).toLocaleDateString()}</p>
+
+            <label>Resolution Message:</label>
+            <textarea
+              rows={4}
+              value={resolutionMessage}
+              onChange={(e) => setResolutionMessage(e.target.value)}
+              placeholder="Type resolution details..."
+            />
+
+            <label>Attach Proof (optional):</label>
+            <input
+              type="file"
+              onChange={(e) => setProofFile(e.target.files[0])}
+            />
+
+            <div className="reply-buttons">
+              <button onClick={handleResolve}>✅ Submit</button>
+              <button
+                onClick={() => {
+                  setActiveComplaint(null);
+                  setResolutionMessage('');
+                  setProofFile(null);
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

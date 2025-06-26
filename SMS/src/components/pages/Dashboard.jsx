@@ -17,7 +17,6 @@ const formatCurrency = (value) => {
   }).format(value);
 };
 
-
 const Dashboard = ({ userType }) => {
   const navigate = useNavigate();
   const [totalProducts, setTotalProducts] = useState(0);
@@ -60,13 +59,6 @@ const Dashboard = ({ userType }) => {
           icon="💰"
           onClick={() => navigate("/stock-value")}
         />
-
-        <DashboardCard
-          title="New Complaints"
-          description="5 unresolved"
-          icon="📨"
-          onClick={() => navigate("/complaints")}
-        />
       </div>
 
       {/* Charts */}
@@ -108,6 +100,12 @@ const Dashboard = ({ userType }) => {
               description="Latest logs of issued/received items"
               icon="🕒"
               onClick={() => navigate("/admin-activity")}
+            />
+            <DashboardCard
+              title="New Complaints"
+              description="5 unresolved"
+              icon="📨"
+              onClick={() => navigate("/complaints")}
             />
           </>
         )}

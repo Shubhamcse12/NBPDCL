@@ -1,57 +1,88 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import './Complaint.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./Complaint.css";
 
-function Complaint() {
-  const [mode, setMode] = useState('file'); // file or track
-  const [userType, setUserType] = useState('public');
+function Complaint({ userType }) {
+  const [mode, setMode] = useState("file");
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    centerId: '',
-    type: '',
-    subject: '',
-    description: '',
+    name: "",
+    email: "",
+    centerId: "",
+    designation: "",
+    item: "",
+    type: "",
+    subject: "",
+    description: "",
+    userType: userType,
   });
 
-  const [trackInput, setTrackInput] = useState('');
+  const [trackInput, setTrackInput] = useState("");
   const [complaints, setComplaints] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [trackMode, setTrackMode] = useState("email");
 
   const complaintTypes = {
-    public: ['Power Outage', 'High Bill', 'Pole Issue', 'Transformer Issue'],
-    center: ['Damaged Equipment', 'Stock Shortage', 'Delay in Supply', 'Meter Fault']
+    guest: ["Power Outage", "High Bill", "Pole Issue", "Transformer Issue", "Others"],
+    user: ["Damaged Equipment", "Stock Shortage", "Delay in Supply", "Meter Fault", "Others"],
   };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchTerm.length > 1) {
+        axios
+          .get(`http://localhost:5000/api/stocks/search?q=${searchTerm}`)
+          .then((res) => setSuggestions(res.data))
+          .catch((err) => console.error(err));
+      } else {
+        setSuggestions([]);
+      }
+    }, 300);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/complaints', formData, {
-        withCredentials: true
+      const dataToSend = { ...formData, userType };
+
+      await axios.post("http://localhost:5000/api/complaints", dataToSend, {
+        withCredentials: true,
       });
-      alert('Complaint submitted successfully!');
+
+      alert("Complaint submitted successfully!");
       setFormData({
-        name: '',
-        email: '',
-        centerId: '',
-        type: '',
-        subject: '',
-        description: '',
+        name: "",
+        email: "",
+        centerId: "",
+        designation: "",
+        item: "",
+        type: "",
+        subject: "",
+        description: "",
+        userType: userType,
       });
+      setSearchTerm("");
+      setSuggestions([]);
     } catch (err) {
       console.error(err);
-      alert('Failed to submit complaint.');
+      alert("Failed to submit complaint.");
     }
   };
 
   const handleTrack = async () => {
-    if (!trackInput) return alert("Please enter Email or Center ID");
+    if (!trackInput) return alert("Please enter the required field");
 
     try {
-      const res = await axios.get('http://localhost:5000/api/complaints', {
-        params: { userType, identifier: trackInput },
-        withCredentials: true
+      const res = await axios.get("http://localhost:5000/api/complaints", {
+        params:
+          trackMode === "complaintId"
+            ? { complaintId: trackInput }
+            : { userType, identifier: trackInput },
+        withCredentials: true,
       });
-      setComplaints(res.data);
+      setComplaints(Array.isArray(res.data) ? res.data : [res.data]);
     } catch (err) {
       console.error(err);
       alert("Failed to fetch complaints");
@@ -61,61 +92,159 @@ function Complaint() {
   return (
     <div className="complaint-form-container">
       <div className="mode-toggle">
-        <button onClick={() => setMode('file')} className={mode === 'file' ? 'active' : ''}>File Complaint</button>
-        <button onClick={() => setMode('track')} className={mode === 'track' ? 'active' : ''}>Track Complaints</button>
+        <button
+          onClick={() => setMode("file")}
+          className={mode === "file" ? "active" : ""}
+        >
+          File Complaint
+        </button>
+        <button
+          onClick={() => setMode("track")}
+          className={mode === "track" ? "active" : ""}
+        >
+          Track Complaints
+        </button>
       </div>
 
-      {mode === 'file' ? (
+      {mode === "file" ? (
         <form className="complaint-form" onSubmit={handleSubmit}>
-          <label>User Type:</label>
-          <select value={userType} onChange={(e) => setUserType(e.target.value)}>
-            <option value="public">Public User</option>
-            <option value="center">Local Center</option>
-          </select>
+          <p><strong>User Type:</strong> {userType}</p>
 
-          {userType === 'public' ? (
+          {userType === "guest" ? (
             <>
-              <input type="text" placeholder="Name" value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
-              <input type="email" placeholder="Email" value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
+              <input
+                type="text"
+                placeholder="Name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                required
+              />
             </>
           ) : (
-            <input type="text" placeholder="Center ID" value={formData.centerId}
-              onChange={(e) => setFormData({ ...formData, centerId: e.target.value })} required />
+            <>
+              <input
+                type="text"
+                placeholder="Center Id"
+                value={formData.centerId}
+                onChange={(e) =>
+                  setFormData({ ...formData, centerId: e.target.value })
+                }
+                required
+              />
+              <input
+                type="text"
+                placeholder="Designation"
+                value={formData.designation}
+                onChange={(e) =>
+                  setFormData({ ...formData, designation: e.target.value })
+                }
+                required
+              />
+            </>
           )}
 
-          <select value={formData.type}
-            onChange={(e) => setFormData({ ...formData, type: e.target.value })} required>
+          <div className="autocomplete-container">
+            <input
+              type="text"
+              placeholder="Item Name"
+              value={formData.item}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setFormData({ ...formData, item: e.target.value });
+              }}
+              required
+            />
+            {suggestions.length > 0 && (
+              <ul className="suggestions-list">
+                {suggestions.map((item, idx) => (
+                  <li
+                    key={idx}
+                    onClick={() => {
+                      setFormData({ ...formData, item: item.itemName });
+                      setSearchTerm(item.itemName);
+                      setSuggestions([]);
+                    }}
+                  >
+                    {item.itemName}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <select
+            value={formData.type}
+            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+            required
+          >
             <option value="">Select Complaint Type</option>
-            {complaintTypes[userType].map((type) => (
-              <option key={type} value={type}>{type}</option>
-            ))}
+            {complaintTypes[userType === "guest" ? "guest" : "user"].map(
+              (type) => (
+                <option key={type} value={type}>{type}</option>
+              )
+            )}
           </select>
 
-          <input type="text" placeholder="Subject" value={formData.subject}
-            onChange={(e) => setFormData({ ...formData, subject: e.target.value })} required />
+          <input
+            type="text"
+            placeholder="Subject"
+            value={formData.subject}
+            onChange={(e) =>
+              setFormData({ ...formData, subject: e.target.value })
+            }
+            required
+          />
 
-          <textarea placeholder="Description" rows={4} value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })} required />
+          <textarea
+            placeholder="Description"
+            rows={4}
+            value={formData.description}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
+            required
+          />
 
           <button type="submit">Submit Complaint</button>
         </form>
       ) : (
         <div className="track-section">
-          <label>User Type:</label>
-          <select value={userType} onChange={(e) => setUserType(e.target.value)}>
-            <option value="public">Public User</option>
-            <option value="center">Local Center</option>
-          </select>
+          <p><strong>User Type:</strong> {userType || "guest"}</p>
 
-          <input
-            type="text"
-            placeholder={userType === 'public' ? 'Enter your Email' : 'Enter Center ID'}
-            value={trackInput}
-            onChange={(e) => setTrackInput(e.target.value)}
-          />
-          <button onClick={handleTrack}>Fetch Complaints</button>
+          <div className="track-controls">
+            <select
+              value={trackMode}
+              onChange={(e) => setTrackMode(e.target.value)}
+            >
+              <option value="email">Track by Email</option>
+              <option value="complaintId">Track by Complaint ID</option>
+            </select>
+
+            <input
+              type="text"
+              placeholder={
+                trackMode === "email"
+                  ? userType === "guest"
+                    ? "Enter your Email"
+                    : "Enter Center Email"
+                  : "Enter Complaint ID"
+              }
+              value={trackInput}
+              onChange={(e) => setTrackInput(e.target.value)}
+            />
+            <button onClick={handleTrack}>Fetch Complaints</button>
+          </div>
 
           <div className="complaints-list">
             {complaints.length === 0 ? (
@@ -124,8 +253,10 @@ function Complaint() {
               complaints.map((comp, i) => (
                 <div key={i} className="complaint-card">
                   <h4>{comp.subject}</h4>
+                  <p><strong>Complaint ID:</strong> {comp.complaintId}</p>
+                  <p><strong>Item:</strong> {comp.item}</p>
                   <p><strong>Type:</strong> {comp.type}</p>
-                  <p><strong>Status:</strong> {comp.status || 'Pending'}</p>
+                  <p><strong>Status:</strong> {comp.status || "Pending"}</p>
                   <p>{comp.description}</p>
                 </div>
               ))

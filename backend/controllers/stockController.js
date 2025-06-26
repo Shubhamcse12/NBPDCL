@@ -46,8 +46,23 @@ const getStockByCategory = async (req, res) => {
 };
 
 
+const searchItems = async (req, res) => {
+  const { q } = req.query;
+  try {
+    const items = await Stock.find({
+      itemName: { $regex: q, $options: 'i' }
+    }).limit(10);
+
+    res.json(items);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Item search failed' });
+  }
+};
+
 module.exports = {
   addStock,
   getAllStocks,
   getStockByCategory,
+  searchItems, 
 };
