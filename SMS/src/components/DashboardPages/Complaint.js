@@ -53,6 +53,8 @@ function Complaint({ userType }) {
             ...prev,
             name: res.data.fullName || "",
             email: res.data.email || "",
+            centerId: res.data.centerId || "",
+            designation: res.data.designation || "",
           }));
         } catch (err) {
           console.error("Error fetching user details", err);
@@ -169,42 +171,16 @@ function Complaint({ userType }) {
             </>
           ) : (
             <>
-              <input
-                type="text"
-                placeholder={userDetails?.fullName}
-                readOnly
-                disabled
-              />
+              <input type="text" value={userDetails?.fullName || ""} readOnly />
+
+              <input type="email" value={userDetails?.email || ""} readOnly />
+
+              <input type="text" value={userDetails?.centerId || ""} readOnly />
 
               <input
-                type="email"
-                placeholder={userDetails?.email}
+                type="text"
+                value={userDetails?.designation || ""}
                 readOnly
-                disabled
-              />
-              {/* <p>
-                <strong>Name:</strong> {userDetails?.fullName}
-              </p>
-              <p>
-                <strong>Email:</strong> {userDetails?.email}
-              </p> */}
-              <input
-                type="text"
-                placeholder="Center Id"
-                value={formData.centerId}
-                onChange={(e) =>
-                  setFormData({ ...formData, centerId: e.target.value })
-                }
-                required
-              />
-              <input
-                type="text"
-                placeholder="Designation"
-                value={formData.designation}
-                onChange={(e) =>
-                  setFormData({ ...formData, designation: e.target.value })
-                }
-                required
               />
             </>
           )}

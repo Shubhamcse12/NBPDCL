@@ -16,8 +16,15 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/me', protect, async (req, res) => {
-  const { fullName, email, status, role } = req.user;
-  res.json({ fullName, email, status, userType: role });
+  const { fullName, email, status, role, centerId, designation } = req.user;
+  res.json({
+    fullName,
+    email,
+    status,
+    centerId,
+    designation,
+    userType: role
+  });
 });
 
 
