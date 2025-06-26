@@ -25,20 +25,8 @@ function Complaint({ userType }) {
   const [trackMode, setTrackMode] = useState("email");
 
   const complaintTypes = {
-    guest: [
-      "Power Outage",
-      "High Bill",
-      "Pole Issue",
-      "Transformer Issue",
-      "Others",
-    ],
-    user: [
-      "Damaged Equipment",
-      "Stock Shortage",
-      "Delay in Supply",
-      "Meter Fault",
-      "Others",
-    ],
+    guest: ["Power Outage", "High Bill", "Pole Issue", "Transformer Issue", "Others"],
+    user: ["Damaged Equipment", "Stock Shortage", "Delay in Supply", "Meter Fault", "Others"],
   };
 
   useEffect(() => {
@@ -172,16 +160,9 @@ function Complaint({ userType }) {
           ) : (
             <>
               <input type="text" value={userDetails?.fullName || ""} readOnly />
-
               <input type="email" value={userDetails?.email || ""} readOnly />
-
               <input type="text" value={userDetails?.centerId || ""} readOnly />
-
-              <input
-                type="text"
-                value={userDetails?.designation || ""}
-                readOnly
-              />
+              <input type="text" value={userDetails?.designation || ""} readOnly />
             </>
           )}
 
@@ -220,13 +201,11 @@ function Complaint({ userType }) {
             required
           >
             <option value="">Select Complaint Type</option>
-            {complaintTypes[userType === "guest" ? "guest" : "user"].map(
-              (type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              )
-            )}
+            {complaintTypes[userType === "guest" ? "guest" : "user"].map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
           </select>
 
           <input
@@ -286,21 +265,37 @@ function Complaint({ userType }) {
               <p>No complaints found.</p>
             ) : (
               complaints.map((comp, i) => (
-                <div key={i} className="complaint-card">
-                  <h4>{comp.subject}</h4>
-                  <p>
-                    <strong>Complaint ID:</strong> {comp.complaintId}
-                  </p>
-                  <p>
-                    <strong>Item:</strong> {comp.item}
-                  </p>
-                  <p>
-                    <strong>Type:</strong> {comp.type}
-                  </p>
-                  <p>
-                    <strong>Status:</strong> {comp.status || "Pending"}
-                  </p>
-                  <p>{comp.description}</p>
+                <div key={i} className="complaint-card improved">
+                  <div className="complaint-header">
+                    <h3>{comp.subject}</h3>
+                    <span className={`status ${comp.status?.toLowerCase() || "pending"}`}>
+                      {comp.status || "Pending"}
+                    </span>
+                  </div>
+                  <p><strong>Complaint ID:</strong> {comp.complaintId}</p>
+                  <p><strong>Filed by:</strong> {comp.userType === "guest" ? comp.name : comp.centerId}</p>
+                  <p><strong>Item:</strong> {comp.item}</p>
+                  <p><strong>Type:</strong> {comp.type}</p>
+                  <p><strong>Description:</strong> {comp.description}</p>
+                  <p><strong>Created At:</strong> {new Date(comp.createdAt).toLocaleString()}</p>
+
+                  {comp.resolution && (
+                    <div className="resolution-box">
+                      <strong>Resolution:</strong>
+                      <p>{comp.resolution}</p>
+                    </div>
+                  )}
+
+                  {comp.proof && (
+                    <div className="proof-box">
+                      <strong>Proof:</strong>
+                      <img
+                        src={`http://localhost:5000${comp.proof}`}
+                        alt="Proof"
+                        className="proof-img"
+                      />
+                    </div>
+                  )}
                 </div>
               ))
             )}
