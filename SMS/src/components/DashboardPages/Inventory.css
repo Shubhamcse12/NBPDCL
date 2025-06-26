@@ -11,36 +11,79 @@
   color: #2c3e50;
 }
 
+/* Toolbar Structure */
 .inventory-toolbar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 20px;
-  flex-wrap: wrap;
 }
 
+.toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 12px;
+}
+
+.toolbar-row-bottom {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Input & Button Styles */
 .inventory-search {
   padding: 8px 12px;
   font-size: 16px;
-  width: 250px;
+  width: 100%;
+  max-width: 400px;
   border: 1px solid #ccc;
   border-radius: 6px;
 }
 
-.inventory-add-button {
-  background-color: #007bff;
-  color: white;
-  padding: 8px 16px;
+.inventory-select,
+.download-btn,
+.filter-btn {
+  padding: 8px 12px;
   font-size: 14px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  background-color: #f1f1f1;
+  color: #333;
 }
 
-.inventory-add-button:hover {
-  background-color: #0056b3;
+.inventory-select {
+  min-width: 140px;
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
 }
 
+.download-btn {
+  background-color: #28a745;
+  color: white;
+  font-weight: bold;
+}
+
+.download-btn:hover {
+  background-color: #218838;
+}
+
+.filter-btn {
+  background-color: #5bc0de;
+  color: white;
+}
+
+.filter-btn:hover {
+  background-color: #5bc0de;
+}
+
+/* Table Styles */
 .inventory-table-container {
   overflow-x: auto;
 }
@@ -49,7 +92,7 @@
   width: 100%;
   border-collapse: collapse;
   background-color: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .inventory-table th,
@@ -64,6 +107,7 @@
   color: #333;
 }
 
+/* Status Labels */
 .status {
   font-weight: 600;
   padding: 6px 10px;
@@ -85,6 +129,7 @@
   color: #721c24;
 }
 
+/* Action Buttons */
 .action-btn {
   margin-right: 8px;
   padding: 6px 12px;
@@ -112,34 +157,56 @@
   background-color: #c82333;
 }
 
-.download-btn {
-  padding: 8px 16px;
-  background-color: #28a745;
-  color: white;
+/* Pagination Controls */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pagination-controls button {
+  padding: 6px 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
+  background-color: #5bc0de;
+  color: white;
   cursor: pointer;
+}
+
+.pagination-controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-controls span {
   font-weight: bold;
 }
 
-.download-btn:hover {
-  background-color: #218838;
-}
-
-
-/* Responsive */
+/* Responsive Styling */
 @media (max-width: 768px) {
-  .inventory-toolbar {
+  .toolbar-row-bottom {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
+    gap: 12px;
   }
 
-  .inventory-search {
+  .toolbar-actions {
+    flex-direction: column;
     width: 100%;
   }
 
-  .inventory-add-button {
+  .inventory-search,
+  .inventory-select,
+  .filter-btn,
+  .download-btn {
     width: 100%;
+  }
+
+  .pagination-controls {
+    flex-direction: row;
+    gap: 8px;
   }
 }

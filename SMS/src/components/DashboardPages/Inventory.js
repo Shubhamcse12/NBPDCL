@@ -1,25 +1,36 @@
-// src/components/pages/Inventory.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import "./Inventory.css";
+import FilterDrawer from "./FilterDrawer"; // make sure path is correct
 
 const Inventory = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-
-  const fetchProducts = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/stocks");
-      setProducts(res.data);
-    } catch (err) {
-      console.error("Failed to fetch products:", err);
-    }
-  };
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    itemName: "",
+    category: "",
+    quantityMin: "",
+    quantityMax: "",
+    priceMin: "",
+    priceMax: "",
+    supplier: "",
+    location: "",
+  });
 
   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/stocks");
+        setProducts(res.data);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+      }
+    };
     fetchProducts();
   }, []);
 
@@ -30,13 +41,44 @@ const Inventory = () => {
       item.itemName.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .filter((item) =>
-      selectedCategory ? item.category === selectedCategory : true
+      filters.itemName
+        ? item.itemName.toLowerCase().includes(filters.itemName.toLowerCase())
+        : true
+    )
+    .filter((item) =>
+      filters.category ? item.category === filters.category : true
+    )
+    .filter((item) =>
+      filters.quantityMin ? item.quantity >= Number(filters.quantityMin) : true
+    )
+    .filter((item) =>
+      filters.quantityMax ? item.quantity <= Number(filters.quantityMax) : true
+    )
+    .filter((item) =>
+      filters.priceMin ? item.unitPrice >= Number(filters.priceMin) : true
+    )
+    .filter((item) =>
+      filters.priceMax ? item.unitPrice <= Number(filters.priceMax) : true
+    )
+    .filter((item) =>
+      filters.supplier
+        ? item.supplier.toLowerCase().includes(filters.supplier.toLowerCase())
+        : true
+    )
+    .filter((item) =>
+      filters.location
+        ? item.location.toLowerCase().includes(filters.location.toLowerCase())
+        : true
     );
+
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = filteredProducts.slice(indexOfFirstRecord, indexOfLastRecord);
+  const totalPages = Math.ceil(filteredProducts.length / recordsPerPage);
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     doc.text("Inventory Report", 14, 15);
-
     const tableColumn = [
       "ID",
       "Item Name",
@@ -47,7 +89,6 @@ const Inventory = () => {
       "Location",
       "Description",
     ];
-
     const tableRows = filteredProducts.map((item) => [
       item._id.slice(0, 6),
       item.itemName,
@@ -58,7 +99,6 @@ const Inventory = () => {
       item.location,
       item.description || "-",
     ]);
-
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
@@ -66,7 +106,6 @@ const Inventory = () => {
       theme: "striped",
       headStyles: { fillColor: [0, 123, 255] },
     });
-
     doc.save("inventory-report.pdf");
   };
 
@@ -75,29 +114,41 @@ const Inventory = () => {
       <h2 className="inventory-heading">📦 Inventory</h2>
 
       <div className="inventory-toolbar">
-        <input
-          type="text"
-          placeholder="Search item..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="inventory-search"
-        />
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="inventory-select"
-        >
-          <option value="">All Categories</option>
-          {categories.map((cat, index) => (
-            <option key={index} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
+        <div className="toolbar-row">
+          <input
+            type="text"
+            placeholder="Search item..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="inventory-search"
+          />
+        </div>
 
-        <button className="download-btn" onClick={handleDownloadPDF}>
-          📄 Download PDF
-        </button>
+        <div className="toolbar-row toolbar-row-bottom">
+          <select
+            value={recordsPerPage}
+            onChange={(e) => {
+              setRecordsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="inventory-select"
+          >
+            {[5, 10, 20, 50].map((num) => (
+              <option key={num} value={num}>
+                {num} per page
+              </option>
+            ))}
+          </select>
+
+          <div className="toolbar-actions">
+            <button className="filter-btn" onClick={() => setDrawerOpen(true)}>
+              ⚙️ Filter
+            </button>
+            <button className="download-btn" onClick={handleDownloadPDF}>
+              📄 Download PDF
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="inventory-table-container">
@@ -115,8 +166,8 @@ const Inventory = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((item) => (
+            {currentRecords.length > 0 ? (
+              currentRecords.map((item) => (
                 <tr key={item._id}>
                   <td>{item._id.slice(0, 6)}...</td>
                   <td>{item.itemName}</td>
@@ -138,12 +189,43 @@ const Inventory = () => {
           </tbody>
         </table>
       </div>
+
+      <div className="pagination-controls">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          ⬅️ Previous
+        </button>
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+        >
+          Next ➡️
+        </button>
+      </div>
+
+      <FilterDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onApply={(newFilters) => {
+          setFilters(newFilters);
+          setDrawerOpen(false);
+          setCurrentPage(1);
+        }}
+        categories={categories}
+        initialFilters={filters}
+      />
     </div>
   );
 };
 
 export default Inventory;
 
+// Helpers
 export const getInventoryCount = async () => {
   try {
     const res = await axios.get("http://localhost:5000/api/stocks");
@@ -157,7 +239,7 @@ export const getInventoryCount = async () => {
 export const getLowStockCount = async () => {
   try {
     const res = await axios.get("http://localhost:5000/api/stocks");
-    return res.data.filter(item => item.quantity < 25).length;
+    return res.data.filter((item) => item.quantity < 25).length;
   } catch (err) {
     console.error("Failed to fetch low stock count:", err);
     return 0;
@@ -167,15 +249,9 @@ export const getLowStockCount = async () => {
 export const getTotalStockValue = async () => {
   try {
     const res = await axios.get("http://localhost:5000/api/stocks");
-    const totalValue = res.data.reduce((sum, item) => {
-      return sum + item.quantity * item.unitPrice;
-    }, 0);
-    return totalValue;
+    return res.data.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   } catch (err) {
     console.error("Failed to fetch stock value:", err);
     return 0;
   }
 };
-
-
-

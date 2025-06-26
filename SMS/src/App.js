@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import axios from 'axios';
@@ -15,9 +14,10 @@ import Inventory from './components/DashboardPages/Inventory';
 import LowStock from './components/DashboardPages/LowStock'
 import StockValue from './components/DashboardPages/StockValue';
 import StockValueComplaints from './components/DashboardPages/StockValueComplaints';
-import StockByCategory from "./components/DashboardPages/StockByCategory";
+import CategoryStockPage from "./components/DashboardPages/CategoryStockPage";
 import AddStockPage from './components/DashboardPages/AddStockPage';
 import ManageUsersPage from './components/DashboardPages/ManageUsersPage';
+import Complaint from './components/DashboardPages/Complaint';
 
 function App() {
   const [userType, setUserType] = useState('guest'); // 'admin' | 'user' | 'guest'
@@ -48,9 +48,10 @@ function App() {
             <Route path="/user-signup" element={<UserSignup />} />
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/low-stock" element={<LowStock />} />
+            <Route path="//file-complaint" element={<Complaint />} />
             <Route path="/stock-value" element={<StockValue />} />
             <Route path="/complaints" element={<StockValueComplaints />} />
-            <Route path="/charts/category" element={<StockByCategory />} />
+            <Route path="/charts/category" element={<CategoryStockPage />} />
             <Route path="/stock/add" element={<AddStockPage />} />
             <Route path="/admin/users" element={<ManageUsersPage />} />
 

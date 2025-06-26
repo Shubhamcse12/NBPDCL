@@ -1,71 +1,134 @@
 .stock-value-container {
   padding: 20px;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: auto;
-  background-color: #fff;
 }
 
 .stock-value-heading {
   font-size: 24px;
   font-weight: bold;
-  color: #2c3e50;
   margin-bottom: 20px;
-  text-align: center;
+  color: #2c3e50;
+}
+
+/* ✅ Horizontal Toolbar */
+.stock-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+/* Uniform Controls */
+.stock-search,
+.stock-select,
+.download-btn {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  flex: 1;
+  min-width: 180px;
+  max-width: 220px;
+  box-sizing: border-box;
+}
+
+/* Specific Styling */
+.stock-search {
+  background-color: #fff;
+}
+
+.stock-select {
+  background-color: #f9f9f9;
+}
+
+.download-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.download-btn:hover {
+  background-color: #218838;
 }
 
 .total-value-box {
-  background-color: #ecf0f1;
-  padding: 12px 18px;
   font-size: 18px;
-  color: #27ae60;
   font-weight: bold;
-  text-align: center;
-  border-radius: 6px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
-.loading-text {
-  text-align: center;
-  font-size: 16px;
-  color: #555;
-  margin-top: 30px;
-}
-
+/* ✅ Table */
 .stock-value-table {
   width: 100%;
   border-collapse: collapse;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  background: #fafafa;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
 }
 
 .stock-value-table th,
 .stock-value-table td {
   padding: 12px 15px;
-  border: 1px solid #ddd;
+  border: 1px solid #e0e0e0;
   text-align: left;
+  white-space: nowrap;
 }
 
 .stock-value-table th {
-  background-color: #f4f4f4;
+  background-color: #f4f6f8;
   color: #333;
-  font-weight: 600;
 }
 
-.stock-value-table td {
-  font-size: 15px;
+/* ✅ Pagination */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
+.pagination-controls button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #5bc0de;
+  color: white;
+  cursor: pointer;
+}
+
+.pagination-controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-controls span {
+  font-weight: bold;
+}
+
+/* ✅ Responsive Stack for Mobile */
 @media (max-width: 768px) {
-  .stock-value-heading {
-    font-size: 20px;
+  .stock-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stock-search,
+  .stock-select,
+  .download-btn {
+    width: 100%;
+    max-width: 100%;
   }
 
   .stock-value-table {
-    font-size: 13px;
+    display: block;
     overflow-x: auto;
-  }
-
-  .total-value-box {
-    font-size: 16px;
+    font-size: 13px;
   }
 }

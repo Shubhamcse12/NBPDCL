@@ -4,6 +4,9 @@
   background-color: #fff;
   border-bottom: 2px solid #ddd;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 /* Top Layer: Logos + Title */
@@ -16,7 +19,6 @@
   flex-wrap: wrap;
 }
 
-/* Left side: logo + title */
 .header-left {
   display: flex;
   align-items: center;
@@ -31,11 +33,14 @@
   white-space: nowrap;
 }
 
-/* Right logo */
 .header-right {
   flex-shrink: 0;
 }
-
+.nav-links {
+  display: flex;
+  margin-left: auto;
+  gap: 16px; /* Add this line to control space between links */
+}
 .logo {
   height: 65px;
   width: auto;
@@ -49,38 +54,37 @@
   padding: 10px 20px;
   border-top: 1px solid #eee;
   position: relative;
-  flex-wrap: wrap;
 }
 
-.logged-in-label {
-  font-size: 14px;
-  color: #444;
-  font-weight: 500;
-}
-
-.nav-wrapper {
-  flex: 1;
+/* Left side: hamburger + role */
+.left-section {
   display: flex;
-  justify-content: flex-end; 
-}
-
-.nav-links {
-  display: flex;
-  gap: 20px;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .hamburger {
-  display: none;
   font-size: 28px;
   background: none;
   border: none;
   cursor: pointer;
+  display: none;
+  background-color: #5bc0de;
+  padding: 0px 11px 4px;
 }
 
+.user-role {
+  font-weight: 600;
+  color: #5a5a5a;
+  text-transform: uppercase;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+/* Right side: nav links */
 .nav-links {
   display: flex;
-  gap: 20px;
+  margin-left: auto;
 }
 
 .nav-links a {
@@ -91,6 +95,11 @@
   border-radius: 4px;
   transition: background 0.2s ease;
 }
+.nav-links .logout {
+ 
+  color: red;
+ 
+}
 
 .nav-links a:hover {
   background-color: #f0f0f0;
@@ -98,47 +107,22 @@
 
 /* Responsive: Mobile view */
 @media (max-width: 768px) {
-  
-
   .header-title {
     font-size: 15px;
   }
+
   .logo {
     height: 42px;
-    width: auto;
-}
+  }
+
   .hamburger {
     display: block;
-    background-color: #5bc0de;
-    padding: 0px 11px 4px;
+    margin-bottom: 5px;
   }
-
-    .logged-in-label {
-    margin: 10px 0;
-    padding-right: 0;
-    width: 100%;
-    text-align: left;
-  }
-  .header-bottom {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .logged-in-label {
-    margin: 10px 0;
-    padding-right: 0;
-    width: 100%;
-    text-align: left;
-  }
-
-  .nav-wrapper {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .nav-links {
-    align-items: flex-start;
-  }
+.nav-links {
+  display: flex;
+  gap: 0px;
+}
   .nav-links {
     display: none;
     flex-direction: column;
@@ -149,7 +133,6 @@
     background: #fff;
     border-top: 1px solid #ddd;
     z-index: 10;
-    padding: 10px 20px;
   }
 
   .nav-links.open {
@@ -157,7 +140,13 @@
   }
 
   .nav-links a {
-    padding: 10px 0;
+    padding: 15px 20px;
     border-bottom: 1px solid #eee;
   }
+
+  .user-role {
+    font-size: 13px;
+    margin-bottom: 5px;
+  }
 }
+
