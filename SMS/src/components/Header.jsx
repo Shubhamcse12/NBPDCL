@@ -1,11 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Header.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Header({ userType, setUserType }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userDetails, setUserDetails] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      if (userType !== 'guest') {
+        try {
+          const res = await axios.get('http://localhost:5000/api/users/me', {
+            withCredentials: true
+          });
+          setUserDetails(res.data);
+          
+        } catch (err) {
+          console.error("Failed to fetch user info", err);
+        }
+      }
+    };
+    fetchUserDetails();
+  }, [userType]);
 
   const handleLogout = async () => {
     try {
@@ -15,6 +33,7 @@ function Header({ userType, setUserType }) {
         { withCredentials: true }
       );
       setUserType("guest");
+      setUserDetails(null);
       navigate("/");
     } catch (err) {
       console.error("Logout failed", err);
@@ -24,7 +43,6 @@ function Header({ userType, setUserType }) {
 
   return (
     <header className="header-wrapper">
-      {/* Top Layer: Logos */}
       <div className="header-top">
         <div className="header-left">
           <img src="logo.png" alt="Company Logo" className="logo" />
@@ -37,7 +55,6 @@ function Header({ userType, setUserType }) {
         </div>
       </div>
 
-      {/* Bottom Layer: Navigation */}
       <div className="header-bottom">
         <div className="left-section">
           <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
@@ -45,14 +62,16 @@ function Header({ userType, setUserType }) {
           </button>
 
           <div className="logged-in-label">
-            {userType !== "" && (
+            {userType !== "guest" && userDetails && (
               <span>
-                Logged in as: <strong>{userType}</strong>
+                Logged in as: <strong>{userDetails.fullName}</strong> ({userDetails.email})
               </span>
             )}
-          </div> </div>
+          </div>
+        </div>
 
         <nav className={`nav-links ${menuOpen ? 'open' : ''}`}>
+          {/* Conditional links */}
           {userType === 'guest' && (
             <>
               <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
@@ -66,20 +85,20 @@ function Header({ userType, setUserType }) {
           {userType === 'admin' && (
             <>
               <Link to="/" onClick={() => setMenuOpen(false)}>Dashboard</Link>
-              <Link to="/admin-inventory" onClick={() => setMenuOpen(false)}>Inventory</Link>
-              <Link to="/admin-orders" onClick={() => setMenuOpen(false)}>Orders</Link>
-              <Link to="/admin-logout" className="logout" onClick={handleLogout}>Logout</Link>
+              <Link to="/inventory" onClick={() => setMenuOpen(false)}>Inventory</Link>
+              <Link to="/stock-value" onClick={() => setMenuOpen(false)}>Stock Value</Link>
+              <Link to="/admin/users" onClick={() => setMenuOpen(false)}>Manage Users</Link>
+              <Link to="/complaints" onClick={() => setMenuOpen(false)}>Complaints</Link>
+              <Link to="/" className="logout" onClick={handleLogout}>Logout</Link>
             </>
           )}
 
           {userType === 'user' && (
             <>
               <Link to="/" onClick={() => setMenuOpen(false)}>Dashboard</Link>
-              <Link to="/user-stock" onClick={() => setMenuOpen(false)}>Inventory</Link>
-              <Link to="/user-orders"  onClick={() => setMenuOpen(false)}>Orders</Link>
+              <Link to="/inventory" onClick={() => setMenuOpen(false)}>Inventory</Link>
               <Link to="/file-complaint" onClick={() => setMenuOpen(false)}>File Complaint</Link>
-              <Link to="/user-logout" className="logout" onClick={handleLogout}>Logout</Link>
-              
+              <Link to="/" className="logout" onClick={handleLogout}>Logout</Link>
             </>
           )}
         </nav>

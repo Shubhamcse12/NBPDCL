@@ -1,6 +1,8 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
 
+let centerCounter = 100;
+
 const registerUser = async (req, res) => {
   try {
     const { fullName, mobile, email, password, confirmPassword, captchaInput, captchaServer } = req.body;
@@ -48,22 +50,25 @@ const getAllUsers = async (req, res) => {
 };
 
 const updateUserStatus = async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-
-  if (!['accepted', 'held', 'blocked'].includes(status)) {
-    return res.status(400).json({ message: 'Invalid status' });
-  }
-
   try {
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
-    res.json(updatedUser);
+    const { status, designation } = req.body;
+    const user = await User.findById(req.params.id);
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.status = status;
+    if (designation) user.designation = designation;
+
+    // Auto-generate centerId if status is 'accepted' and centerId is not already assigned
+    if (status === 'accepted' && !user.centerId) {
+      centerCounter++;
+      user.centerId = `CTR${centerCounter}`;
+    }
+
+    await user.save();
+    res.json({ message: 'User updated successfully', user });
   } catch (err) {
-    res.status(500).json({ message: 'Failed to update status', error: err.message });
+    res.status(500).json({ message: 'Failed to update user', error: err.message });
   }
 };
 

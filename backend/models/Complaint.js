@@ -12,7 +12,6 @@ const complaintSchema = new mongoose.Schema({
   subject: { type: String, required: true },
   description: { type: String, required: true },
   status: { type: String, default: 'Pending' },
-
   resolution: { type: String },
   proof: { type: String }, 
   resolvedAt: { type: Date },

@@ -16,8 +16,10 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/me', protect, async (req, res) => {
-  res.json({ userType: 'user' });
+  const { fullName, email, status, role } = req.user;
+  res.json({ fullName, email, status, userType: role });
 });
+
 
 router.get('/', getAllUsers);
 router.put('/:id/status', updateUserStatus);

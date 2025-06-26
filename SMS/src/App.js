@@ -20,7 +20,7 @@ import ManageUsersPage from './components/DashboardPages/ManageUsersPage';
 import Complaint from './components/DashboardPages/Complaint';
 
 function App() {
-  const [userType, setUserType] = useState('guest'); // 'admin' | 'user' | 'guest'
+  const [userType, setUserType] = useState('guest'); 
 
   useEffect(() => {
     const checkSession = async () => {

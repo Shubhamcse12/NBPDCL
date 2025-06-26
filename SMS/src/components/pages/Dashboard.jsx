@@ -103,7 +103,7 @@ const Dashboard = ({ userType }) => {
             />
             <DashboardCard
               title="New Complaints"
-              description="5 unresolved"
+              description="5 unresolved & 📄 Check all complaints"
               icon="📨"
               onClick={() => navigate("/complaints")}
             />
@@ -158,12 +158,12 @@ const Dashboard = ({ userType }) => {
             icon="📥"
             onClick={() => navigate("/receive-stock")}
           />
-          <DashboardCard
+          {/* <DashboardCard
             title="View Complaints"
             description="📄 Check all complaints"
             icon="📄"
             onClick={() => navigate("/complaints")}
-          />
+          /> */}
         </div>
       )}
     </div>

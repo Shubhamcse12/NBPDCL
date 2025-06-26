@@ -17,6 +17,7 @@ function Complaint({ userType }) {
     userType: userType,
   });
 
+  const [userDetails, setUserDetails] = useState(null);
   const [trackInput, setTrackInput] = useState("");
   const [complaints, setComplaints] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,9 +25,42 @@ function Complaint({ userType }) {
   const [trackMode, setTrackMode] = useState("email");
 
   const complaintTypes = {
-    guest: ["Power Outage", "High Bill", "Pole Issue", "Transformer Issue", "Others"],
-    user: ["Damaged Equipment", "Stock Shortage", "Delay in Supply", "Meter Fault", "Others"],
+    guest: [
+      "Power Outage",
+      "High Bill",
+      "Pole Issue",
+      "Transformer Issue",
+      "Others",
+    ],
+    user: [
+      "Damaged Equipment",
+      "Stock Shortage",
+      "Delay in Supply",
+      "Meter Fault",
+      "Others",
+    ],
   };
+
+  useEffect(() => {
+    const getUserDetails = async () => {
+      if (userType === "user") {
+        try {
+          const res = await axios.get("http://localhost:5000/api/users/me", {
+            withCredentials: true,
+          });
+          setUserDetails(res.data);
+          setFormData((prev) => ({
+            ...prev,
+            name: res.data.fullName || "",
+            email: res.data.email || "",
+          }));
+        } catch (err) {
+          console.error("Error fetching user details", err);
+        }
+      }
+    };
+    getUserDetails();
+  }, [userType]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -108,7 +142,9 @@ function Complaint({ userType }) {
 
       {mode === "file" ? (
         <form className="complaint-form" onSubmit={handleSubmit}>
-          <p><strong>User Type:</strong> {userType}</p>
+          <p>
+            <strong>User Type:</strong> {userType}
+          </p>
 
           {userType === "guest" ? (
             <>
@@ -133,6 +169,25 @@ function Complaint({ userType }) {
             </>
           ) : (
             <>
+              <input
+                type="text"
+                placeholder={userDetails?.fullName}
+                readOnly
+                disabled
+              />
+
+              <input
+                type="email"
+                placeholder={userDetails?.email}
+                readOnly
+                disabled
+              />
+              {/* <p>
+                <strong>Name:</strong> {userDetails?.fullName}
+              </p>
+              <p>
+                <strong>Email:</strong> {userDetails?.email}
+              </p> */}
               <input
                 type="text"
                 placeholder="Center Id"
@@ -191,7 +246,9 @@ function Complaint({ userType }) {
             <option value="">Select Complaint Type</option>
             {complaintTypes[userType === "guest" ? "guest" : "user"].map(
               (type) => (
-                <option key={type} value={type}>{type}</option>
+                <option key={type} value={type}>
+                  {type}
+                </option>
               )
             )}
           </select>
@@ -220,7 +277,9 @@ function Complaint({ userType }) {
         </form>
       ) : (
         <div className="track-section">
-          <p><strong>User Type:</strong> {userType || "guest"}</p>
+          <p>
+            <strong>User Type:</strong> {userType || "guest"}
+          </p>
 
           <div className="track-controls">
             <select
@@ -253,10 +312,18 @@ function Complaint({ userType }) {
               complaints.map((comp, i) => (
                 <div key={i} className="complaint-card">
                   <h4>{comp.subject}</h4>
-                  <p><strong>Complaint ID:</strong> {comp.complaintId}</p>
-                  <p><strong>Item:</strong> {comp.item}</p>
-                  <p><strong>Type:</strong> {comp.type}</p>
-                  <p><strong>Status:</strong> {comp.status || "Pending"}</p>
+                  <p>
+                    <strong>Complaint ID:</strong> {comp.complaintId}
+                  </p>
+                  <p>
+                    <strong>Item:</strong> {comp.item}
+                  </p>
+                  <p>
+                    <strong>Type:</strong> {comp.type}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> {comp.status || "Pending"}
+                  </p>
                   <p>{comp.description}</p>
                 </div>
               ))

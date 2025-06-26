@@ -24,6 +24,14 @@ const userSchema = new mongoose.Schema({
     enum: ["accepted", "held", "blocked"],
     default: "accepted",
   },
+   centerId: {
+    type: String,
+    required: false, 
+  },
+  designation: {
+    type: String,
+    required: false, 
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);
