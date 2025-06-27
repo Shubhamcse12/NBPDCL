@@ -18,6 +18,7 @@ import CategoryStockPage from "./components/DashboardPages/CategoryStockPage";
 import AddStockPage from './components/DashboardPages/AddStockPage';
 import ManageUsersPage from './components/DashboardPages/ManageUsersPage';
 import Complaint from './components/DashboardPages/Complaint';
+import StatusChartPage from './components/DashboardPages/StatusChartPage';
 
 function App() {
   const [userType, setUserType] = useState('guest'); 
@@ -54,6 +55,7 @@ function App() {
             <Route path="/charts/category" element={<CategoryStockPage />} />
             <Route path="/stock/add" element={<AddStockPage />} />
             <Route path="/admin/users" element={<ManageUsersPage />} />
+            <Route path="/charts/status" element={<StatusChartPage />} />
 
           </Routes>
         </div>
