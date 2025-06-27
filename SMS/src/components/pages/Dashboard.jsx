@@ -42,6 +42,11 @@ const Dashboard = ({ userType }) => {
       {/* KPI Cards */}
       <div className="dashboard-grid">
         <DashboardCard
+          title="Welcome"
+          description={`Logged in as: ${userType}`}
+          icon="👤"
+        />
+        <DashboardCard
           title="Total Products"
           description={`${totalProducts} items in stock`}
           icon="📦"
@@ -81,11 +86,7 @@ const Dashboard = ({ userType }) => {
 
       {/* Role Panels */}
       <div className="dashboard-grid">
-        <DashboardCard
-          title="Welcome"
-          description={`Logged in as: ${userType}`}
-          icon="👤"
-        />
+        
 
         {userType === "admin" && (
           <>
@@ -142,7 +143,7 @@ const Dashboard = ({ userType }) => {
         <div className="dashboard-grid">
           <DashboardCard
             title="Add New Stock"
-            description="➕ Add stock items"
+            description="➕ Add stock items "
             icon="➕"
             onClick={() => navigate("/stock/add")}
           />

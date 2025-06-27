@@ -22,7 +22,7 @@ const getAllStocks = async (req, res) => {
 
 const getStockByCategory = async (req, res) => {
   try {
-    const stockData = await StockItem.aggregate([
+    const stockData = await Stock.aggregate([
       {
         $group: {
           _id: "$category",
