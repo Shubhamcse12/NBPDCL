@@ -22,6 +22,7 @@ import StatusChartPage from "./components/DashboardPages/StatusChartPage";
 import MakeOrder from "./components/DashboardPages/MakeOrder";
 import AllocateOrder from "./components/DashboardPages/AllocateOrder";
 import MyOrders from "./components/DashboardPages/MyOrders";
+import AdminActivity from "./components/DashboardPages/AdminActivity"
 
 function App() {
   const [userType, setUserType] = useState("guest");
@@ -76,6 +77,7 @@ function App() {
             <Route path="/stock/add" element={<AddStockPage />} />
             <Route path="/admin/users" element={<ManageUsersPage />} />
             <Route path="/charts/status" element={<StatusChartPage />} />
+            <Route path="/admin-activity" element={<AdminActivity />} />
           </Routes>
         </div>
         <Footer />

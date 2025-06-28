@@ -86,74 +86,37 @@ const getMyOrders = async (req, res) => {
   }
 };
 
-const allocateOrder = async (req, res) => {
-  const { orderId, allocations } = req.body;
 
-  try {
-    const order = await Order.findById(orderId).populate("items.itemId");
-    if (!order) return res.status(404).json({ message: "Order not found" });
-
-    for (let i = 0; i < order.items.length; i++) {
-      const item = order.items[i];
-      const allocatedQty = allocations[item.itemId._id] ?? item.quantity;
-
-      const stockItem = await Stock.findById(item.itemId._id);
-      if (!stockItem) return res.status(404).json({ message: "Stock not found" });
-
-      if (stockItem.quantity < allocatedQty)
-        return res.status(400).json({ message: `Insufficient stock for ${stockItem.itemName}` });
-
-      stockItem.quantity -= allocatedQty;
-      await stockItem.save();
-
-      item.quantity = allocatedQty; // Update quantity to allocated value
-    }
-
-    order.status = "Allocated";
-    await order.save();
-
-    res.status(200).json({ message: "Order allocated successfully", order });
-  } catch (err) {
-    console.error("❌ Allocation error:", err);
-    res.status(500).json({ message: "Server error allocating order" });
-  }
-};
-
-const rejectOrder = async (req, res) => {
-  const { orderId } = req.body;
-
-  try {
-    const order = await Order.findById(orderId);
-    if (!order) return res.status(404).json({ message: "Order not found" });
-
-    order.status = "Rejected";
-    await order.save();
-
-    res.status(200).json({ message: "Order rejected successfully", order });
-  } catch (err) {
-    console.error("❌ Rejection error:", err);
-    res.status(500).json({ message: "Server error rejecting order" });
-  }
-};
 
 const getPendingOrders = async (req, res) => {
   try {
     const orders = await Order.find({ status: { $in: [null, "Pending"] } })
-      .populate("userId", "name email centerName designation")
-      .populate("items.itemId", "itemName")
-      .sort({ placedAt: -1 });
-
-    console.log("📦 Pending Orders Count:", orders.length); // ✅ Log this
-    console.log("🧾 Orders:", orders.map(o => ({
-      id: o._id,
-      status: o.status,
-      placedBy: o.placedByEmail
-    })));
+      .populate("userId", "fullName email location designation")
+      .populate("items.itemId", "itemName category location quantity unitPrice supplier")
+      .sort({ createdAt: -1 });
 
     const formatted = orders.map((order) => ({
-      ...order._doc,
-      userName: order.userId?.name || "Unknown",
-      centerName: order.userId?.centerName || "N/A",
+      orderId: order.orderId,
+      _id: order._id,
+      userId: order.userId?._id,
+      userName: order.userId?.fullName || "Unknown",
+      centerName: order.userId?.location || "N/A",
+      centerId: order.userId?.centerId || "N/A",
+      designation: order.userId?.designation || "N/A",
+      placedByEmail: order.placedByEmail,
+      placedAt: order.placedAt,
+      status: order.status || "Pending",
+      items: order.items.map((item) => ({
+        itemId: item.itemId?._id,
+        itemName: item.itemId?.itemName || "Unknown Item",
+        category: item.itemId?.category || "Unknown Category",
+        quantity: item.quantity,
+        unitPrice: item.itemId?.unitPrice ?? 0,
+        availableStock: item.itemId?.quantity ?? 0,
+        supplier: item.itemId?.supplier || "N/A",
+        location: item.itemId?.location || "N/A",
+        status: item.status || "Pending",
+      })),
     }));
 
     res.json(formatted);
@@ -163,7 +126,125 @@ const getPendingOrders = async (req, res) => {
   }
 };
 
+const acceptOrderItem = async (req, res) => {
+  try {
+    const { orderId, itemId, quantity } = req.body;
+
+    if (!orderId || !itemId || quantity == null) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    const item = order.items.find((i) => i.itemId.toString() === itemId);
+    if (!item) return res.status(404).json({ message: "Item not found in order" });
+
+    const stockItem = await Stock.findById(itemId);
+    if (!stockItem) return res.status(404).json({ message: "Stock item not found" });
+
+    if (stockItem.quantity < quantity) {
+      return res.status(400).json({ message: "Insufficient stock" });
+    }
+
+    // Deduct stock
+    stockItem.quantity -= quantity;
+    await stockItem.save();
+
+    // Update item status in order
+    item.status = "Accepted";
+
+    // Save updated order
+    await order.save();
+
+    // Update order status based on all items
+    const allStatuses = order.items.map((i) => i.status);
+    if (allStatuses.every((s) => s === "Accepted")) {
+      order.status = "Accepted";
+    } else if (allStatuses.every((s) => s === "Rejected")) {
+      order.status = "Rejected";
+    } else {
+      order.status = "Pending";
+    }
+
+    await order.save();
+
+    res.json({ message: "Item accepted and stock updated", orderStatus: order.status });
+  } catch (err) {
+    console.error("❌ Accept Error:", err);
+    res.status(500).json({ message: "Server error accepting item" });
+  }
+};
+
+
+const rejectOrderItem = async (req, res) => {
+  try {
+    const { orderId, itemId } = req.body;
+
+    if (!orderId || !itemId) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    const item = order.items.find((i) => i.itemId.toString() === itemId);
+    if (!item) return res.status(404).json({ message: "Item not found in order" });
+
+    item.status = "Rejected";
+    await order.save();
+
+    // Update order status based on all items
+    const allStatuses = order.items.map((i) => i.status);
+    if (allStatuses.every((s) => s === "Accepted")) {
+      order.status = "Accepted";
+    } else if (allStatuses.every((s) => s === "Rejected")) {
+      order.status = "Rejected";
+    } else {
+      order.status = "Pending";
+    }
+
+    await order.save();
+
+    res.json({ message: "Item rejected", orderStatus: order.status });
+  } catch (err) {
+    console.error("❌ Reject Error:", err);
+    res.status(500).json({ message: "Server error rejecting item" });
+  }
+};
+
+const getActivityLogs = async (req, res) => {
+  try {
+    const orders = await Order.find({}).populate("userId").populate("items.itemId");
+
+    const logs = [];
+
+    orders.forEach((order) => {
+      order.items.forEach((item) => {
+        if (item.status === "Accepted" || item.status === "Rejected") {
+          logs.push({
+            _id: `${order._id}-${item.itemId?._id}`,
+            itemName: item.itemId?.itemName || "Unknown",
+            action: item.status,
+            quantity: item.allocatedQuantity || item.quantity,
+            performedBy: order.userId?.fullName || order.placedByEmail || "Unknown",
+            date: order.updatedAt || order.createdAt,
+          });
+        }
+      });
+    });
+
+    res.json(logs);
+  } catch (err) {
+    console.error("❌ Error getting activity logs:", err);
+    res.status(500).json({ message: "Failed to get activity logs" });
+  }
+};
 
 
 
-module.exports = { placeOrder , getMyOrders, allocateOrder, rejectOrder, getPendingOrders};
+
+
+
+
+module.exports = { placeOrder , getMyOrders,  getPendingOrders, acceptOrderItem, rejectOrderItem, getActivityLogs};

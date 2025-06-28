@@ -7,7 +7,7 @@ const orderSchema = new mongoose.Schema({
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "userModel",
+    ref: "User",
     required: true,
   },
   items: [
@@ -25,6 +25,15 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         required: true,
       },
+      status: {
+        type: String,
+        enum: ["Pending", "Accepted", "Rejected"],
+        default: "Pending",
+      },
+      allocatedQuantity: {
+        type: Number,
+        default: 0,
+      },
     },
   ],
   placedByEmail: {
@@ -34,14 +43,16 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  status: { type: String, default: "Pending" },
+  status: {
+    type: String,
+    default: "Pending",
+  },
 }, { timestamps: true });
 
-// ✅ Pre-save hook to auto-generate orderId like ORD101
+// Auto-generate orderId like ORD101, ORD102...
 orderSchema.pre("save", async function (next) {
   if (!this.orderId) {
     const Order = mongoose.model("Order");
-
     const lastOrder = await Order.findOne({})
       .sort({ createdAt: -1 })
       .select("orderId");

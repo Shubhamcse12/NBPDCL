@@ -6,40 +6,47 @@ const AllocateOrder = () => {
   const [orders, setOrders] = useState([]);
   const [stocks, setStocks] = useState([]);
   const [allocations, setAllocations] = useState({});
+  const [itemStatus, setItemStatus] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchOrders();
-    fetchStocks();
+    const fetchPendingOrders = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/orders/pending");
+        const ordersData = response.data;
+        setOrders(ordersData);
+
+        const stockMap = {};
+        const statusMap = {};
+
+        ordersData.forEach((order) => {
+          order.items.forEach((item) => {
+            const id = item.itemId?._id || item.itemId;
+            if (!stockMap[id]) {
+              stockMap[id] = {
+                _id: id,
+                itemName: item.itemName,
+                quantity: item.availableStock,
+              };
+            }
+            statusMap[`${order._id}-${id}`] = "Pending";
+          });
+        });
+
+        setStocks(Object.values(stockMap));
+        setItemStatus(statusMap);
+      } catch (err) {
+        console.error("❌ Error fetching orders:", err);
+        alert("Failed to load orders.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPendingOrders();
   }, []);
 
-  const fetchOrders = async () => {
-    try {
-      console.log("🔄 Fetching pending orders...");
-      const res = await axios.get("http://localhost:5000/api/orders/pending", {
-        withCredentials: true,
-      });
-      console.log("📦 Orders fetched:", res.data);
-      setOrders(res.data);
-    } catch (err) {
-      console.error("❌ Failed to fetch orders:", err.message);
-    }
-  };
-
-  const fetchStocks = async () => {
-    try {
-      console.log("🔄 Fetching current stock data...");
-      const res = await axios.get("http://localhost:5000/api/stocks", {
-        withCredentials: true,
-      });
-      console.log("📦 Stocks fetched:", res.data);
-      setStocks(res.data);
-    } catch (err) {
-      console.error("❌ Failed to fetch stocks:", err.message);
-    }
-  };
-
   const handleQuantityChange = (orderId, itemId, value) => {
-    console.log(`✏️ Quantity changed: Order ${orderId}, Item ${itemId}, Qty: ${value}`);
     setAllocations((prev) => ({
       ...prev,
       [orderId]: {
@@ -49,55 +56,56 @@ const AllocateOrder = () => {
     }));
   };
 
-  const updateOrderStatus = (orderId, status) => {
-    console.log(`🔁 Updating order ${orderId} to status: ${status}`);
-    setOrders((prev) =>
-      prev.map((order) =>
-        order._id === orderId ? { ...order, status } : order
-      )
-    );
-  };
+  const handleAcceptItem = async (orderId, itemId) => {
+  const key = `${orderId}-${itemId}`;
+  const allocatedQty = allocations[orderId]?.[itemId] ?? 1;
 
-  const handleAllocate = async (orderId, items) => {
-    const alloc = allocations[orderId] || {};
-    console.log(`📤 Allocating order ${orderId} with:`, alloc);
+  try {
+    const res = await axios.post("http://localhost:5000/api/orders/accept", {
+      orderId,
+      itemId,
+      quantity: allocatedQty,
+    });
 
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/orders/allocate",
-        {
-          orderId,
-          allocations: alloc,
-        },
-        { withCredentials: true }
-      );
+    if (res.data.message) {
+      setItemStatus((prev) => ({ ...prev, [key]: "Accepted" }));
 
-      console.log("✅ Allocation successful:", response.data);
-      updateOrderStatus(orderId, "Allocated");
-      alert("✅ Order allocated!");
-    } catch (err) {
-      console.error("❌ Allocation failed:", err.response?.data || err.message);
-      alert("❌ Allocation failed");
+      const stockIndex = stocks.findIndex((s) => s._id === itemId);
+      if (stockIndex !== -1) {
+        const updatedStocks = [...stocks];
+        updatedStocks[stockIndex].quantity -= allocatedQty;
+        if (updatedStocks[stockIndex].quantity < 0) {
+          updatedStocks[stockIndex].quantity = 0;
+        }
+        setStocks(updatedStocks);
+      }
     }
-  };
+  } catch (err) {
+    console.error("❌ Accept error:", err);
+    alert("Failed to accept item.");
+  }
+};
 
-  const handleReject = async (orderId) => {
-    console.log(`🛑 Rejecting order ${orderId}`);
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/orders/reject",
-        { orderId },
-        { withCredentials: true }
-      );
+const handleRejectItem = async (orderId, itemId) => {
+  const key = `${orderId}-${itemId}`;
 
-      console.log("❌ Rejection successful:", response.data);
-      updateOrderStatus(orderId, "Rejected");
-      alert("❌ Order rejected.");
-    } catch (err) {
-      console.error("❌ Rejection failed:", err.response?.data || err.message);
-      alert("❌ Rejection failed");
+  try {
+    const res = await axios.post("http://localhost:5000/api/orders/reject", {
+      orderId,
+      itemId,
+    });
+
+    if (res.data.message) {
+      setItemStatus((prev) => ({ ...prev, [key]: "Rejected" }));
     }
-  };
+  } catch (err) {
+    console.error("❌ Reject error:", err);
+    alert("Failed to reject item.");
+  }
+};
+
+
+  if (loading) return <p>Loading orders...</p>;
 
   return (
     <div className="allocate-order-container">
@@ -107,63 +115,67 @@ const AllocateOrder = () => {
       ) : (
         orders.map((order) => (
           <div key={order._id} className="order-card">
-            <h4>🧑‍💼 {order.userName || "User"} ({order.userId})</h4>
-            <p><strong>Email:</strong> {order.placedByEmail}</p>
-            <p><strong>Date:</strong> {new Date(order.placedAt).toLocaleDateString()}</p>
-            <p>
-              <strong>Status:</strong>{" "}
-              <span className={`status ${
-                order.status === "Allocated"
-                  ? "status-allocated"
-                  : order.status === "Rejected"
-                  ? "status-rejected"
-                  : "status-pending"
-              }`}>
+            <div className="order-header">
+              <h3>📦 Order ID: {order.orderId}</h3>
+              <span className={`order-status-badge status-${order.status.toLowerCase()}`}>
                 {order.status}
               </span>
-            </p>
+            </div>
 
+            <p><strong>User:</strong> {order.userName} ({order.userId})</p>
+            <p><strong>Email:</strong> {order.placedByEmail}</p>
+            <p><strong>Designation:</strong> {order.designation}</p>
+            <p><strong>Center ID:</strong> {order.centerId}</p>
+            <p><strong>Location:</strong> {order.centerName}</p>
+            <p><strong>Placed On:</strong> {new Date(order.placedAt).toLocaleString()}</p>
+
+            <hr />
             {order.items.map((item, idx) => {
-              const stockItem = stocks.find((s) => s._id === item.itemId._id);
-              const inStock = stockItem?.quantity ?? 0;
+              const itemId = item.itemId?._id || item.itemId;
+              const key = `${order._id}-${itemId}`;
+              const inStock = stocks.find((s) => s._id === itemId)?.quantity ?? 0;
 
               return (
                 <div key={idx} className="order-item">
-                  <span><strong>{item.itemId.itemName}</strong></span>
-                  <span>Requested: {item.quantity}</span>
-                  <span>In Stock: {inStock}</span>
+                  <h4>🛠️ {item.itemName}</h4>
+                  <p>Category: {item.category}</p>
+                  <p>Supplier: {item.supplier}</p>
+                  <p>Item Location: {item.location}</p>
+                  <p>Unit Price: ₹{item.unitPrice}</p>
+                  <p>Requested Qty: {item.quantity}</p>
+                  <p>Available Stock: {inStock}</p>
+
                   <input
                     type="number"
                     min="0"
                     max={item.quantity}
-                    disabled={order.status !== "Pending"}
-                    value={
-                      allocations[order._id]?.[item.itemId._id] ?? item.quantity
-                    }
+                    value={allocations[order._id]?.[itemId] ?? item.quantity}
                     onChange={(e) =>
-                      handleQuantityChange(order._id, item.itemId._id, e.target.value)
+                      handleQuantityChange(order._id, itemId, e.target.value)
                     }
                   />
+
+                  <div className="status-control">
+                    <span className={`status-badge status-${itemStatus[key]?.toLowerCase()}`}>
+                      {itemStatus[key]}
+                    </span>
+
+                    {itemStatus[key] === "Pending" && (
+                      <div className="inline-buttons">
+                        <button onClick={() => handleAcceptItem(order._id, itemId)} className="allocate-btn">
+                          ✅ Accept
+                        </button>
+                        <button onClick={() => handleRejectItem(order._id, itemId)} className="reject-btn">
+                          ❌ Reject
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <hr />
                 </div>
               );
             })}
-
-            {order.status === "Pending" && (
-              <div className="button-group">
-                <button
-                  onClick={() => handleAllocate(order._id, order.items)}
-                  className="allocate-btn"
-                >
-                  ✅ Allocate
-                </button>
-                <button
-                  onClick={() => handleReject(order._id)}
-                  className="reject-btn"
-                >
-                  ❌ Reject
-                </button>
-              </div>
-            )}
           </div>
         ))
       )}

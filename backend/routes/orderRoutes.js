@@ -4,20 +4,24 @@ const {
   placeOrder,
   getMyOrders,
   getPendingOrders,
-  allocateOrder,
-  rejectOrder
+  acceptOrderItem ,
+  rejectOrderItem ,
+  getActivityLogs,
+  
 } = require("../controllers/orderController");
 const { protect } = require("../middleware/authMiddleware");
 
-// Order placing and fetching
+
 router.post("/", placeOrder);
 router.get("/my-orders", protect, getMyOrders);
 
-// Pending orders for admin/staff
-router.get("/pending", protect, getPendingOrders);
 
-// Allocation / Rejection routes
-router.post("/allocate", protect, allocateOrder);
-router.post("/reject", protect, rejectOrder);
+router.get("/pending", getPendingOrders);
+router.post("/accept", acceptOrderItem);
+router.post("/reject", rejectOrderItem);
+router.get("/logs", getActivityLogs);
+
+
+
 
 module.exports = router;
