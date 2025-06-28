@@ -1,0 +1,153 @@
+.allocate-order-container {
+  max-width: 960px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #f4faff;
+  border-radius: 12px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.allocate-order-container h2 {
+  margin-bottom: 24px;
+  color: #2c3e50;
+  text-align: center;
+}
+
+/* Order Card */
+.order-card {
+  background: #ffffff;
+  border: 1px solid #ccddee;
+  padding: 20px;
+  margin-bottom: 28px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.order-card h4 {
+  margin-bottom: 10px;
+  font-size: 17px;
+  color: #2e3d4d;
+}
+
+.order-card p {
+  margin: 4px 0;
+  color: #444;
+  font-size: 14px;
+}
+
+/* Order Item Row */
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f0f4f8;
+  padding: 10px 14px;
+  margin: 10px 0;
+  border-radius: 8px;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.order-item span {
+  flex: 1 1 30%;
+  min-width: 120px;
+  margin-bottom: 6px;
+}
+
+.order-item input {
+  width: 60px;
+  padding: 6px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Status Label */
+.status {
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.status-allocated {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Button Group */
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* Allocate Button */
+.allocate-btn {
+  background-color: #27ae60;
+  color: white;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.allocate-btn:hover {
+  background-color: #1e874b;
+}
+
+/* Reject Button */
+.reject-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.reject-btn:hover {
+  background-color: #c0392b;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .order-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .order-item span {
+    margin-bottom: 5px;
+  }
+
+  .button-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .allocate-btn,
+  .reject-btn {
+    width: 100%;
+  }
+}

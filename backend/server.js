@@ -6,6 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const stockRoutes = require('./routes/stockRoutes');
 const complaintRoutes = require("./routes/complaintRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -29,6 +30,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/stocks', stockRoutes);
 app.use('/api/complaints', complaintRoutes); 
+app.use("/api/orders", orderRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>

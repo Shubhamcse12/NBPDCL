@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false, 
   },
+  location:{
+    type:String,
+    require:false,
+  },
   designation: {
     type: String,
     required: false, 

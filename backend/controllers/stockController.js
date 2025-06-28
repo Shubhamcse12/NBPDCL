@@ -60,9 +60,49 @@ const searchItems = async (req, res) => {
   }
 };
 
+const updateStock = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const updatedStock = await Stock.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedStock) {
+      return res.status(404).json({ error: "Stock item not found" });
+    }
+
+    res.status(200).json({ message: "Stock item updated successfully", updatedStock });
+  } catch (err) {
+    console.error("Error updating stock:", err);
+    res.status(500).json({ error: "Failed to update stock item" });
+  }
+};
+
+const deleteStock = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedItem = await Stock.findByIdAndDelete(id);
+
+    if (!deletedItem) {
+      return res.status(404).json({ error: "Stock item not found" });
+    }
+
+    res.status(200).json({ message: "Stock item deleted successfully" });
+  } catch (err) {
+    console.error("Delete Error:", err);
+    res.status(500).json({ error: "Failed to delete stock item" });
+  }
+};
+
+
 module.exports = {
   addStock,
   getAllStocks,
   getStockByCategory,
   searchItems, 
+  updateStock,
+  deleteStock,
 };

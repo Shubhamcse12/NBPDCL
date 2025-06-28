@@ -65,6 +65,7 @@ function Header({ userType, setUserType }) {
             {userType !== "guest" && userDetails && (
               <span>
                 Logged in as: <strong>{userDetails.fullName}</strong> ({userDetails.email})
+                
               </span>
             )}
           </div>

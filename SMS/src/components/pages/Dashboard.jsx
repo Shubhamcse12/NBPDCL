@@ -114,6 +114,12 @@ const Dashboard = ({ userType }) => {
         {userType === "user" && (
           <>
             <DashboardCard
+              title="Request Order "
+              description="Make your orders and requests"
+              icon="📦"
+              onClick={() => navigate("/user-makeorder")}
+            />
+            <DashboardCard
               title="My Orders"
               description="Track your orders and requests"
               icon="📦"
@@ -129,12 +135,20 @@ const Dashboard = ({ userType }) => {
         )}
 
         {userType === "guest" && (
+          <>
           <DashboardCard
             title="Guest Access"
             description="Please login or sign up to access full features"
             icon="🔒"
             onClick={() => navigate("/user-login")}
           />
+           <DashboardCard
+              title="Support"
+              description="Raise a complaint or contact support"
+              icon="☎️"
+              onClick={() => navigate("/support")}
+            />
+          </>
         )}
       </div>
 
@@ -151,7 +165,7 @@ const Dashboard = ({ userType }) => {
             title="Issue Item"
             description="📤 Mark stock as issued"
             icon="📤"
-            onClick={() => navigate("/issue-stock")}
+            onClick={() => navigate("/user-requests")}
           />
           <DashboardCard
             title="Receive Item"
